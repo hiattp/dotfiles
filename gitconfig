@@ -1,0 +1,12 @@
+[user]
+  name = Paul Hiatt
+  email = hiattp@gmail.com
+[credential]
+  helper = osxkeychain
+[alias]
+  di = diff
+  br = branch
+  sta = stash
+[filter "media"]
+  clean = git-media-clean %f
+  smudge = git-media-smudge %f
