@@ -21,6 +21,18 @@ inoremap [<CR>  [<CR>]<Esc>O
 inoremap [[     [
 inoremap []     []
 inoremap <expr> ]  strpart(getline('.'), col('.')-1, 1) == "]" ? "\<Right>" : "]"
+inoremap '      ''<Left>
+inoremap ''     '
+inoremap <expr> ' strpart(getline('.'), col('.')-1, 1) == "\'" ? "\<Right>" : "\'\'\<Left>"
+inoremap "      ""<Left>
+inoremap ""     "
+inoremap <expr> " strpart(getline('.'), col('.')-1, 1) == "\"" ? "\<Right>" : "\"\"\<Left>"
+
+" Reload the vimrc file
+nmap <silent> <leader>sv :so $MYVIMRC<CR>
+
+" Dodge a couple keystrokes on vim commands
+nnoremap ; :
 
 " highlight search results
 set hlsearch
@@ -37,10 +49,17 @@ imap <C-l> <C-x><C-l>
 
 " Paste from clipboard
 map <leader>p :set paste<cr>:r !pbpaste<cr>:set nopaste<cr>
-vmap <Leader>b :<C-U>!git blame <C-R>=expand("%:p") <CR> \| sed -n <C-R>=line("'<") <CR>,<C-R>=line("'>") <CR>p <CR>
+map <leader>bb :Gblame<CR>
 " Navigate lines
 map <leader>l $
 map <leader>h ^
+" Don't skip over second part of a broken line
+nnoremap j gj
+nnoremap k gk
+" Adjust lines
+map <leader>k kJ
+" Paste over lines with whitespace (common when using snipmate)
+nnoremap <expr> p getline('.') =~? '\v^\s+$' ? "\"_ddP" : "p"
 " Clear search matches
 map <leader>c :nohlsearch<CR>
 " RSpec.vim settings and mappings
