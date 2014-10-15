@@ -4,6 +4,11 @@ alias gui='github'
 # https://github.com/tpope/heroku-binstubs
 alias pc='production run rails c'
 alias sc='staging run rails c'
+# These depend on the presence of a rake deploy task. One option is heroku_san:
+# https://github.com/fastestforward/heroku_san
+# Note: By default heroku_san deploys HEAD
+alias dp='rake production deploy'
+alias ds='rake staging deploy'
 
 # Include private aliases
 [[ -f ~/.aliases.private ]] && source ~/.aliases.private
