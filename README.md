@@ -25,8 +25,11 @@ First, set the shell to use Zsh by default:
 
     chsh -s /bin/zsh
 
-I like having the [Oh My Zsh!](https://github.com/robbyrussell/oh-my-zsh) plugins/settings readily available. Either comment out the OMZ settings in `zshrc.local` or install it with:
+I like having the [Oh My Zsh!](https://github.com/robbyrussell/oh-my-zsh) plugins readily available. However, I don't like all the other crap they put in there. Either comment out the OMZ settings in `zshrc.local` or install it with the following commands. Note that the second command eliminates all OMZ functionality except plugins.
 
-    git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh
+```
+git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh
+mv ~/.hiattp-dotfiles/.oh-my-zsh.sh ~/.oh-my-zsh/oh-my-zsh.sh
+```
 
 Then restart the shell and enjoy!
