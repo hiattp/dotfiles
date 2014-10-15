@@ -59,7 +59,8 @@ nnoremap k gk
 " Adjust lines
 map <leader>k kJ
 " Paste over lines with whitespace (common when using snipmate)
-nnoremap <expr> p getline('.') =~? '\v^\s+$' ? "\"_ddP" : "p"
+nnoremap <expr> p getline('.') =~? '\v^\s+$' ? "\"_ddP" : "p=`]"
+
 " Clear search matches
 map <leader>c :nohlsearch<CR>
 " RSpec.vim settings and mappings
