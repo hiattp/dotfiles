@@ -4,30 +4,6 @@ set path=$PWD/**
 " Auto-indent in a way that makes sense
 set autoindent
 
-" Auto-complete brackets, braces and parens
-inoremap {      {}<Left>
-inoremap {{{    {{  }}<Left><Left><Left>
-inoremap {<CR>  {<CR>}<Esc>O
-inoremap {{     {
-inoremap {}     {}
-inoremap <expr> }  strpart(getline('.'), col('.')-1, 1) == "}" ? "\<Right>" : "}"
-inoremap (      ()<Left>
-inoremap (<CR>  (<CR>)<Esc>O
-inoremap ((     (
-inoremap ()     ()
-inoremap <expr> )  strpart(getline('.'), col('.')-1, 1) == ")" ? "\<Right>" : ")"
-inoremap [      []<Left>
-inoremap [<CR>  [<CR>]<Esc>O
-inoremap [[     [
-inoremap []     []
-inoremap <expr> ]  strpart(getline('.'), col('.')-1, 1) == "]" ? "\<Right>" : "]"
-inoremap '      ''<Left>
-inoremap ''     '
-inoremap <expr> ' strpart(getline('.'), col('.')-1, 1) == "\'" ? "\<Right>" : "\'\'\<Left>"
-inoremap "      ""<Left>
-inoremap ""     "
-inoremap <expr> " strpart(getline('.'), col('.')-1, 1) == "\"" ? "\<Right>" : "\"\"\<Left>"
-
 " Reload the vimrc file
 nmap <silent> <leader>sv :so $MYVIMRC<CR>
 
