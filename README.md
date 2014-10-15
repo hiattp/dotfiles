@@ -17,7 +17,7 @@ env RCRC=$HOME/.hiattp-dotfiles/rcrc rcup
 
 ## MacVim
 
-On OSX I prefer and recommend [MacVim](https://github.com/b4winckler/macvim/releases) as the default editor, since it has the perks of a traditional OSX application.
+On OSX I prefer and recommend [MacVim](https://github.com/b4winckler/macvim/releases) as the default editor, since it has the perks of a traditional OSX application. Make sure to do [this](http://stackoverflow.com/questions/2056137/how-to-run-mvim-macvim-from-terminal) after installation.
 
 ## Zsh Setup
 
