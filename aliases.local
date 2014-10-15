@@ -1,9 +1,0 @@
-# Servers
-alias ec2="ssh -i ~/Documents/InfoHounds/accounts/hiattp.pem ec2-user@ec2-107-21-13-127.compute-1.amazonaws.com"
-alias ec2images="ssh -i ~/Documents/InfoHounds/accounts/hiattp.pem ubuntu@ec2-54-208-213-121.compute-1.amazonaws.com"
-alias dc-ec2images-old="ssh -i ~/Documents/Contracting/DigitalCache/aws/hiattp.pem ubuntu@ec2-54-210-154-217.compute-1.amazonaws.com"
-alias dc-ec2images="ssh -i ~/Documents/Contracting/DigitalCache/aws/hiattp.pem ubuntu@ec2-54-236-224-6.compute-1.amazonaws.com"
-alias cisco="ssh hiattp@172.16.50.1"
-# Shortcuts
-alias e='mvim'
-alias gui='github'
