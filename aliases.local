@@ -1,0 +1,9 @@
+alias e='mvim'
+alias gui='github'
+# These depend on Heroku binstubs being set up:
+# https://github.com/tpope/heroku-binstubs
+alias pc='production run rails c'
+alias sc='staging run rails c'
+
+# Include private aliases
+[[ -f ~/.aliases.private ]] && source ~/.aliases.private
