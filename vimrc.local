@@ -26,6 +26,8 @@ imap <C-l> <C-x><C-l>
 " Paste from clipboard
 map <leader>p :set paste<cr>:r !pbpaste<cr>:set nopaste<cr>
 map <leader>bb :Gblame<CR>
+" Replace word with current register
+map <leader>w viw"_c<C-R>0<esc>
 " Navigate lines
 map <leader>l $
 map <leader>h ^
