@@ -36,6 +36,9 @@ nnoremap j gj
 nnoremap k gk
 " Adjust lines
 map <leader>k kJ
+" Adds whitespace above or below with alt j/k
+nnoremap <silent>Wj :set paste<CR>m`o<Esc>``:set nopaste<CR>
+nnoremap <silent>Wk :set paste<CR>m`O<Esc>``:set nopaste<CR>
 " Paste over lines with whitespace (common when using snipmate)
 nnoremap <expr> p getline('.') =~? '\v^\s+$' ? "\"_ddP" : "p=`]"
 
