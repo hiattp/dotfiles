@@ -29,7 +29,7 @@ I like having the [Oh My Zsh!](https://github.com/robbyrussell/oh-my-zsh) plugin
 
 ```
 git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh
-mv ~/.hiattp-dotfiles/.oh-my-zsh.sh ~/.oh-my-zsh/oh-my-zsh.sh
+cp ~/.hiattp-dotfiles/.oh-my-zsh.sh ~/.oh-my-zsh/oh-my-zsh.sh
 ```
 
 Then restart the shell and enjoy!
