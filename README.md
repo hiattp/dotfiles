@@ -19,6 +19,20 @@ env RCRC=$HOME/.hiattp-dotfiles/rcrc rcup
 
 On OSX I prefer and recommend [MacVim](https://github.com/b4winckler/macvim/releases) as the default editor, since it has the perks of a traditional OSX application. Make sure to do [this](http://stackoverflow.com/questions/2056137/how-to-run-mvim-macvim-from-terminal) after installation.
 
+## File/Text Search
+
+I include both Ack and Ag in my Vundle list in case one is unavailable, but I
+usually stick to [The Silver Searcher](https://github.com/ggreer/the_silver_searcher) when given the option. To install on OSX:
+
+    brew install the_silver_searcher
+
+## Local Documentation Libraries
+
+I use [Dash](http://kapeli.com/dash) to reference docs quickly. When installed,
+you can pull up documentation in vim like this:
+
+    :Dash panels bootstrap
+
 ## Zsh Setup
 
 First, set the shell to use Zsh by default:
