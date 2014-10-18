@@ -1,4 +1,5 @@
 Plugin 'mileszs/ack.vim'
+Plugin 'rking/ag.vim'
 Plugin 'rizzatti/dash.vim'
 Plugin 'ervandew/supertab'
 Plugin 'groenewege/vim-less'
