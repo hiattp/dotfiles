@@ -1,6 +1,8 @@
 alias e='mvim'
 alias gui='github'
 alias rc='rails c'
+alias ser='rails s'
+alias gp='g push'
 # These depend on Heroku binstubs being set up:
 # https://github.com/tpope/heroku-binstubs
 alias pc='production run rails c'
