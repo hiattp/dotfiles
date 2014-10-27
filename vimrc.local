@@ -30,6 +30,8 @@ map <leader>bb :Gblame<CR>
 map <leader>W viw"_c<C-R>0<esc>
 " Faster saving
 noremap <Leader>w :update<CR>
+" Faster quit
+noremap <Leader>q :wq<CR>
 " Break out of insert mode without ESC
 inoremap jj <Esc>
 " Navigate lines
