@@ -2,13 +2,14 @@ alias e='mvim'
 alias gui='github'
 alias rc='rails c'
 alias ser='rails s'
+alias jser='bundle exec jekyll serve'
 alias gp='g push'
 # These depend on Heroku binstubs being set up:
 # https://github.com/tpope/heroku-binstubs
 alias pc='production run rails c'
 alias sc='staging run rails c'
 alias op='production open'
-alias op='staging open'
+alias os='staging open'
 # These depend on the presence of a rake deploy task. One option is heroku_san:
 # https://github.com/fastestforward/heroku_san
 # Note: By default heroku_san deploys HEAD
