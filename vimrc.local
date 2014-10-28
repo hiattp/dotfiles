@@ -32,8 +32,8 @@ map <leader>W viw"_c<C-R>0<esc>
 noremap <Leader>w :update<CR>
 " Faster quit
 noremap <Leader>q :wq<CR>
-" Break out of insert mode without ESC
-inoremap jj <Esc>
+" Break out of insert mode without ESC and save
+inoremap jj <Esc>:update<CR>
 " Navigate lines
 map <leader>l $
 map <leader>h ^
