@@ -46,7 +46,7 @@ map <leader>k kJ
 nnoremap <silent>Wj :set paste<CR>m`o<Esc>``:set nopaste<CR>
 nnoremap <silent>Wk :set paste<CR>m`O<Esc>``:set nopaste<CR>
 " Paste over lines with whitespace (common when using snipmate)
-nnoremap <expr> p getline('.') =~? '\v^\s+$' ? "\"_ddP" : "p=`]"
+nnoremap <expr> p getline('.') =~? '\v^\s+$' ? "\"_ddP=`]" : "p=`]"
 
 " Clear search matches
 map <leader>c :nohlsearch<CR>
