@@ -36,7 +36,6 @@ noremap <Leader>q :update<CR>:q<CR>
 noremap s :Ag<Space>
 " Break out of insert mode without ESC and save
 inoremap jj <Esc>:update<CR>
-inoremap fj <Esc>:update<CR>
 " Navigate lines
 map <leader>l $
 map <leader>h ^
