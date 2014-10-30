@@ -83,3 +83,30 @@ let g:session_autosave='no'
 let g:session_autoload='no'
 " Settings for syntastic
 let g:syntastic_html_checkers=['']
+
+" Navigate windows with auto-create if navigating at edge of windows
+function! s:GotoNextWindow( direction )
+  let l:prevWinNr = winnr()
+  execute 'wincmd' a:direction
+  return winnr() != l:prevWinNr
+endfunction
+
+function! s:JumpWithCreate( direction )
+  if ! s:GotoNextWindow(a:direction)
+    if a:direction == 'h'
+      vsplit
+    elseif a:direction == 'j'
+      split
+    elseif a:direction == 'k'
+      split
+    elseif a:direction == 'l'
+      vsplit
+    endif
+    execute 'wincmd' a:direction
+  endif
+endfunction
+
+nnoremap <silent> <C-h> :<C-u>call <SID>JumpWithCreate('h')<CR>
+nnoremap <silent> <C-j> :<C-u>call <SID>JumpWithCreate('j')<CR>
+nnoremap <silent> <C-k> :<C-u>call <SID>JumpWithCreate('k')<CR>
+nnoremap <silent> <C-l> :<C-u>call <SID>JumpWithCreate('l')<CR>
