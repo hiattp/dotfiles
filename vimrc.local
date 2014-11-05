@@ -32,10 +32,10 @@ map <leader>W viw"_c<C-R>0<esc>
 noremap <Leader>w :update<CR>
 " Faster quit
 noremap <Leader>q :update<CR>:q<CR>
-" Faster search access. Who uses the normal s anyway?
-noremap s :Ag<Space>
+" Faster search access.
+noremap <Leader>S :Ag<Space>
 " Break out of insert mode without ESC and save
-inoremap jj <Esc>:update<CR>
+inoremap jj <Esc><Esc>:update<CR>
 " Navigate lines
 map <leader>l $
 map <leader>h ^

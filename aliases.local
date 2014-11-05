@@ -1,7 +1,7 @@
 alias e='mvim'
 alias gui='github'
 alias rc='rails c'
-alias rser='rails s'
+alias ser='rails s'
 alias jser='bundle exec jekyll serve'
 alias gp='g push'
 alias gd='g diff'
