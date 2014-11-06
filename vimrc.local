@@ -34,8 +34,8 @@ noremap <Leader>w :update<CR>
 noremap <Leader>q :update<CR>:q<CR>
 " Faster search access.
 noremap <Leader>S :Ag<Space>
-" Break out of insert mode without ESC and save
-inoremap jj <Esc><Esc>:update<CR>
+" Break out of insert mode and save
+inoremap <Esc> <Esc>:update<CR>
 " Navigate lines
 map <leader>l $
 map <leader>h ^
