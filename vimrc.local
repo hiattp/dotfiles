@@ -109,3 +109,28 @@ nnoremap <silent> <C-h> :<C-u>call <SID>JumpWithCreate('h')<CR>
 nnoremap <silent> <C-j> :<C-u>call <SID>JumpWithCreate('j')<CR>
 nnoremap <silent> <C-k> :<C-u>call <SID>JumpWithCreate('k')<CR>
 nnoremap <silent> <C-l> :<C-u>call <SID>JumpWithCreate('l')<CR>
+
+" map each number to its shift-key character
+inoremap 1 !
+inoremap 2 @
+inoremap 3 #
+inoremap 4 $
+inoremap 5 %
+inoremap 6 ^
+inoremap 7 &
+inoremap 8 *
+inoremap 9 (
+inoremap 0 )
+inoremap - _
+" and then the opposite
+inoremap ! 1
+inoremap @ 2
+inoremap # 3
+inoremap $ 4
+inoremap % 5
+inoremap ^ 6
+inoremap & 7
+inoremap * 8
+inoremap ( 9
+inoremap ) 0
+inoremap _ -
