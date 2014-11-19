@@ -1,6 +1,10 @@
 " MacVim Settings
 colorscheme macvim
-set bg=dark
+if strftime("%H") < 16
+  set bg=light
+else
+  set bg=dark
+endif
 set guioptions-=r
 set guioptions-=R
 set guioptions-=l
