@@ -4,6 +4,7 @@ alias rc='rails c'
 alias ser='rails s'
 alias jser='bundle exec jekyll serve'
 alias gp='g push'
+alias gpu='g pull'
 alias gd='g diff'
 # These depend on Heroku binstubs being set up:
 # https://github.com/tpope/heroku-binstubs

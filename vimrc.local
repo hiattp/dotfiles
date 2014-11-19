@@ -5,7 +5,7 @@ set path=$PWD/**
 set autoindent
 
 " Reload the vimrc file
-nmap <silent> <leader>sv :so $MYVIMRC<CR>
+nmap <silent> <leader>v :so $MYVIMRC<CR>
 
 " Dodge a couple keystrokes on vim commands
 nnoremap ; :
@@ -34,8 +34,9 @@ noremap <Leader>w :update<CR>
 noremap <Leader>q :update<CR>:q<CR>
 " Faster search access.
 noremap <Leader>S :Ag<Space>
+noremap <Leader>R :%s/\%V
 " Break out of insert mode and save
-inoremap <Esc> <Esc>:update<CR>
+inoremap <Esc> <Esc><Esc>:update<CR>
 " Navigate lines
 map <leader>l $
 map <leader>h ^
@@ -55,7 +56,7 @@ map <leader>c :nohlsearch<CR>
 " RSpec.vim settings and mappings
 let g:rspec_command = 'time spring rspec {spec}'
 map <Leader>s :call RunNearestSpec()<CR>
-map <Leader>ss :call RunLastSpec()<CR>
+" map <Leader>ss :call RunLastSpec()<CR>
 map <Leader>a :call RunAllSpecs()<CR>
 " Enter Explore faster
 map <Leader>e :Explore<CR>
@@ -109,28 +110,3 @@ nnoremap <silent> <C-h> :<C-u>call <SID>JumpWithCreate('h')<CR>
 nnoremap <silent> <C-j> :<C-u>call <SID>JumpWithCreate('j')<CR>
 nnoremap <silent> <C-k> :<C-u>call <SID>JumpWithCreate('k')<CR>
 nnoremap <silent> <C-l> :<C-u>call <SID>JumpWithCreate('l')<CR>
-
-" map each number to its shift-key character
-inoremap 1 !
-inoremap 2 @
-inoremap 3 #
-inoremap 4 $
-inoremap 5 %
-inoremap 6 ^
-inoremap 7 &
-inoremap 8 *
-inoremap 9 (
-inoremap 0 )
-inoremap - _
-" and then the opposite
-inoremap ! 1
-inoremap @ 2
-inoremap # 3
-inoremap $ 4
-inoremap % 5
-inoremap ^ 6
-inoremap & 7
-inoremap * 8
-inoremap ( 9
-inoremap ) 0
-inoremap _ -
