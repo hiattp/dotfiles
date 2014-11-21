@@ -1,6 +1,10 @@
 " Enable searching in project with :find
 set path=$PWD/**
 
+" Turn off error indications (e.g. the bell sound)
+set noerrorbells visualbell t_vb=
+autocmd GUIEnter * set visualbell t_vb=
+
 " Auto-indent in a way that makes sense
 set autoindent
 
