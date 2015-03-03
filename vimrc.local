@@ -12,13 +12,17 @@ set autoindent
 nmap <silent> <leader>v :so $MYVIMRC<CR>
 
 " Scroll window to optimal spot for work (5 lines below top of screen)
-nmap <silent> <leader>T z<CR>5<C-y>
+nmap <silent> <leader>TT z<CR>5<C-y>
 
 " Dodge a couple keystrokes on vim commands
 nnoremap ; :
 
+" Put latest yanked text (bypass latest deleted text in default buffer)
+noremap YP "0P
+nnoremap <expr> Yp getline('.') =~? '\v^\s+$' ? "\"_dd\"0P=`]" : "\"0p=p`]"
+
 " highlight search results
-set hlsearch
+" set hlsearch
 
 " Search settings
 set ignorecase
@@ -39,9 +43,10 @@ map <leader>W viw"_c<C-R>0<esc>
 noremap <Leader>w :update<CR>
 " Faster quit
 noremap <Leader>q :update<CR>:q<CR>
-" Faster search access.
+" Faster search access
 noremap <Leader>S :Ag<Space>
-noremap <Leader>R :%s/\%V
+noremap <Leader>R :%s/
+noremap <Leader>RV :%s/\%V
 " Break out of insert mode and save
 inoremap <Esc> <Esc><Esc>:update<CR>
 " Navigate lines
