@@ -1,19 +1,21 @@
 alias e='mvim'
 alias gui='github'
 alias rc='rails c'
-alias ser='rails s'
-alias jser='bundle exec jekyll serve'
+alias sr='local_server'
 alias gp='g push'
 alias gpu='g pull'
 alias gf='g fetch'
 alias gd='g diff'
 alias gl='g log'
 alias gb='g br'
+alias gr='g remote -v'
 alias gu='guard'
 alias c='clear'
 alias p='ping google.com'
 alias n='vim ~/Desktop/notes.txt'
 alias solr='bundle exec rake sunspot:solr:start'
+# Run once in every rails project directory to shim bundle exec
+alias bunbin='bundle install --binstubs .bundle/bin'
 # These depend on Heroku binstubs being set up:
 # https://github.com/tpope/heroku-binstubs
 alias pc='production run rails c'

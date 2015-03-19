@@ -1,5 +1,4 @@
 PATH="./bin:/usr/local/bin:/usr/local/sbin:/usr/local/git/bin:$PATH"
-PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
 cdpath=($HOME/Sites $HOME/Lockstep)
 
 # Oh My ZSH Template:
