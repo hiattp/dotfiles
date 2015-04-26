@@ -40,15 +40,15 @@ map <leader>bb :Gblame<CR>
 " Replace word with current register while maintaining the register
 map <leader>W viw"_c<C-R>0<esc>
 " Faster saving
-noremap <Leader>w :update<CR>
+noremap <Leader>w :up<CR>
 " Faster quit
-noremap <Leader>q :update<CR>:q<CR>
+noremap <Leader>q :up<CR>:q<CR>
 " Faster search access
 noremap <Leader>S :Ag<Space>
 noremap <Leader>R :%s/
 noremap <Leader>RV :%s/\%V
 " Break out of insert mode and save
-inoremap <Esc> <Esc><Esc>:update<CR>
+inoremap <Esc> <Esc><Esc>:up<CR>
 " Navigate lines
 map <leader>l $
 map <leader>h ^
