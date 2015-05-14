@@ -16,6 +16,7 @@ nmap <silent> <leader>TT z<CR>5<C-y>
 
 " Dodge a couple keystrokes on vim commands
 nnoremap ; :
+nnoremap <leader>f ;
 
 " Put latest yanked text (bypass latest deleted text in default buffer)
 noremap YP "0P
@@ -97,6 +98,9 @@ let g:session_autosave='no'
 let g:session_autoload='no'
 " Settings for syntastic
 let g:syntastic_html_checkers=['']
+
+" Settings for ctrlp
+" let g:ctrlp_follow_symlinks = 3
 
 " Navigate windows with auto-create if navigating at edge of windows
 function! s:GotoNextWindow( direction )
