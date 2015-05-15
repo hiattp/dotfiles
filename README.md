@@ -47,3 +47,8 @@ cp ~/.hiattp-dotfiles/.oh-my-zsh.sh ~/.oh-my-zsh/oh-my-zsh.sh
 ```
 
 Then restart the shell and enjoy!
+
+## Other Notes:
+
+You'll want [this](https://github.com/carsomyr/rbenv-bundler) rbenv plugin to
+avoid typing `bundle exec`.
