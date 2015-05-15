@@ -10,8 +10,8 @@ These are just local overrides that suit my workflows.
 The following commands add the `~/.hiattp-dotfiles` and  `~/.thoughtbot-dotfiles` directories, then uses rcm to symlink the dotfiles into the home directory. Note that some things won't work unless you are running Zsh instead of Bash, and you must have [rcm](https://github.com/thoughtbot/rcm) installed.
 
 ```
-git clone https://github.com/thoughtbot/dotfiles.git ~/.thoughtbot-dotfiles
-git clone https://github.com/hiattp/dotfiles.git ~/.hiattp-dotfiles
+git clone git@github.com:thoughtbot/dotfiles.git ~/.thoughtbot-dotfiles
+git clone git@github.com:hiattp/dotfiles.git ~/.hiattp-dotfiles
 env RCRC=$HOME/.hiattp-dotfiles/rcrc rcup
 ```
 
