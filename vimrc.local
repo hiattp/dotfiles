@@ -8,6 +8,10 @@ autocmd GUIEnter * set visualbell t_vb=
 " Auto-indent in a way that makes sense
 set autoindent
 
+if executable('ag')
+  let g:ctrlp_user_command = 'ag %s -l --nocolor --follow -g ""'
+endif
+
 " Reload the vimrc file
 nmap <silent> <leader>v :so $MYVIMRC<CR>
 
