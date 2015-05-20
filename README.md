@@ -51,4 +51,6 @@ Then restart the shell and enjoy!
 ## Other Notes:
 
 You'll want [this](https://github.com/carsomyr/rbenv-bundler) rbenv plugin to
-avoid typing `bundle exec`.
+avoid typing `bundle exec`. If you use Heroku you might want to use
+[heroku accounts](https://github.com/heroku/heroku-accounts) and
+[heroku-binstubs](https://github.com/tpope/heroku-binstubs).
