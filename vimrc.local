@@ -42,8 +42,6 @@ imap <C-l> <C-x><C-l>
 " Paste from clipboard
 map <leader>p :set paste<cr>:r !pbpaste<cr>:set nopaste<cr>
 map <leader>bb :Gblame<CR>
-" Replace word with current register while maintaining the register
-map <leader>W viw"_c<C-R>0<esc>
 " Faster saving
 noremap <Leader>w :up<CR>
 " Faster quit

@@ -1,6 +1,6 @@
 alias e='mvim'
 alias gui='github'
-alias rc='rails c'
+alias rc='spring rails c'
 alias sr='local_server'
 alias gp='g push'
 alias gpu='g pull'
