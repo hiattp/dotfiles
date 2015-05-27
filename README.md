@@ -54,3 +54,6 @@ You'll want [this](https://github.com/carsomyr/rbenv-bundler) rbenv plugin to
 avoid typing `bundle exec`. If you use Heroku you might want to use
 [heroku accounts](https://github.com/heroku/heroku-accounts) and
 [heroku-binstubs](https://github.com/tpope/heroku-binstubs).
+
+I also commonly want to dive into gems with ctags, so
+[this](https://github.com/tpope/gem-ctags) is helpful.
