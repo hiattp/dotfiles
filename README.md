@@ -15,9 +15,19 @@ git clone git@github.com:hiattp/dotfiles.git ~/.hiattp-dotfiles
 env RCRC=$HOME/.hiattp-dotfiles/rcrc rcup
 ```
 
+## Other Dev Tools
+
+I run thoughtbot's [laptop script](https://github.com/thoughtbot/laptop) on new
+machines to get things started. After that I grab the latest version of Python:
+
+    brew install python
+
+Then you can install the AWS CLI with `pip install awscli && aws configure` and
+a PGP implementation with `brew install gnupg gnupg2`.
+
 ## MacVim
 
-On OSX I prefer and recommend [MacVim](https://github.com/b4winckler/macvim/releases) as the default editor, since it has the perks of a traditional OSX application. Make sure to do [this](http://stackoverflow.com/questions/2056137/how-to-run-mvim-macvim-from-terminal) after installation.
+On OSX I prefer [MacVim](https://github.com/b4winckler/macvim/releases) as the default editor, since it has the perks of a traditional OSX application. Make sure to do [this](http://stackoverflow.com/questions/2056137/how-to-run-mvim-macvim-from-terminal) after installation.
 
 ## File/Text Search
 

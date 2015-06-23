@@ -126,6 +126,7 @@ function! s:JumpWithCreate( direction )
   endif
 endfunction
 
+au BufNewFile,BufRead *.raml set filetype=yaml
 nnoremap <silent> <C-h> :<C-u>call <SID>JumpWithCreate('h')<CR>
 nnoremap <silent> <C-j> :<C-u>call <SID>JumpWithCreate('j')<CR>
 nnoremap <silent> <C-k> :<C-u>call <SID>JumpWithCreate('k')<CR>
