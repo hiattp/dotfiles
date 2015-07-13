@@ -7,7 +7,7 @@ alias gp='g push'
 alias gpu='g pull'
 alias gf='g fetch'
 alias gd='g diff'
-alias gl='g log'
+alias gl="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias gb='g branches'
 alias gr='g remote -v'
 alias gu='guard'

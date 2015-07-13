@@ -16,7 +16,7 @@ endif
 nmap <silent> <leader>v :so $MYVIMRC<CR>
 
 " Scroll window to optimal spot for work (5 lines below top of screen)
-nmap <silent> <leader>TT z<CR>5<C-y>
+nmap <silent> <leader>TT z<CR>15<C-y>
 
 " Dodge a couple keystrokes on vim commands
 nnoremap ; :
