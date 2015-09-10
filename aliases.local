@@ -7,6 +7,7 @@ alias gp='g push'
 alias l='ls -al'
 alias gpu='g pull'
 alias gf='g ci --fixup'
+alias gfh='gf HEAD'
 alias gd='g diff'
 alias gl="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias gb='g branches'
