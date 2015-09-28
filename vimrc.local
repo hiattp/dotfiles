@@ -5,6 +5,7 @@ set path=$PWD/**
 set noerrorbells visualbell t_vb=
 autocmd GUIEnter * set visualbell t_vb=
 
+map <Leader>f :e <C-R>=expand("%:p:h") . "/" <CR>
 " Auto-indent in a way that makes sense
 set autoindent
 
