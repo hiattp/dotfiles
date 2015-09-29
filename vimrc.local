@@ -61,6 +61,7 @@ nnoremap j gj
 nnoremap k gk
 " Adjust lines
 map <leader>k kJ
+map Di ddO
 " Adds whitespace above or below with alt j/k
 nnoremap <silent>Wj :set paste<CR>m`o<Esc>``:set nopaste<CR>
 nnoremap <silent>Wk :set paste<CR>m`O<Esc>``:set nopaste<CR>
