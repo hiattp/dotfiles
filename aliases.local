@@ -10,6 +10,7 @@ alias gf='g ci --fixup'
 alias gfh='gf HEAD'
 alias gd='g diff'
 alias gl="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+alias cb="g rev-parse --abbrev-ref HEAD | tr -d '\n' | tr -d ' ' | pbcopy"
 alias gb='g branches'
 alias gs='g stash save'
 alias gsa='g stash apply'
