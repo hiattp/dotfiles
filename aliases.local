@@ -9,6 +9,7 @@ alias l='ls -al'
 alias gpu='g pull'
 alias gf='g ci --fixup'
 alias gfh='gf HEAD'
+alias gca='g checkout .'
 alias gd='g diff'
 alias gl="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias cb="g rev-parse --abbrev-ref HEAD | tr -d '\n' | tr -d ' ' | pbcopy"
@@ -57,6 +58,7 @@ alias os='staging open'
 # Note: By default heroku_san deploys HEAD
 alias dp='rake production deploy'
 alias ds='rake staging deploy'
+alias fix='$EDITOR `git diff --name-only | uniq`'
 
 # Include private aliases
 [[ -f ~/.aliases.private ]] && source ~/.aliases.private
