@@ -103,6 +103,10 @@ let g:session_autosave='no'
 let g:session_autoload='no'
 " Settings for syntastic
 let g:syntastic_html_checkers=['']
+let g:syntastic_mode_map = {
+      \ "mode": "active",
+      \ "passive_filetypes": ["haml", "scss", "sass"] }
+
 
 " Settings for ctrlp
 " let g:ctrlp_follow_symlinks = 3
