@@ -60,6 +60,7 @@ alias os='staging open'
 alias dp='rake production deploy'
 alias ds='rake staging deploy'
 alias fix='$EDITOR `git diff --name-only | uniq`'
+alias remove_stale_postgres_pid_file='rm /usr/local/var/postgres/postmaster.pid'
 
 # Include private aliases
 [[ -f ~/.aliases.private ]] && source ~/.aliases.private
