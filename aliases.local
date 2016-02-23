@@ -13,6 +13,7 @@ alias gca='g checkout .'
 alias gd='g diff'
 alias gl="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias cb="g rev-parse --abbrev-ref HEAD | tr -d '\n' | tr -d ' ' | pbcopy"
+alias myb="gb | grep Hiatt"
 alias gb='g branches'
 alias gcp='g cherry-pick'
 alias gs='g stash save'
@@ -23,6 +24,7 @@ alias gr='g rebase'
 alias gri='g rebase -i'
 alias gu='guard'
 alias grc='g rebase --continue'
+alias gra='g rebase --abort'
 alias gpf='gp -f'
 alias gsh='g show HEAD'
 alias gcd='g co development'
