@@ -52,10 +52,10 @@ alias solr='bundle exec rake sunspot:solr:start'
 alias bunbin='bundle install --binstubs .bundle/bin'
 # These depend on Heroku binstubs being set up:
 # https://github.com/tpope/heroku-binstubs
-alias pc='production run rails c'
-alias sc='staging run rails c'
-alias op='production open'
-alias os='staging open'
+alias pc='./bin/production run rails c'
+alias sc='./bin/staging run rails c'
+alias op='./bin/production open'
+alias os='./bin/staging open'
 # These depend on the presence of a rake deploy task. One option is heroku_san:
 # https://github.com/fastestforward/heroku_san
 # Note: By default heroku_san deploys HEAD

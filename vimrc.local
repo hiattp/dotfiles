@@ -75,6 +75,8 @@ nnoremap sos osave_and_open_screenshot<ESC>
 map <leader>c :nohlsearch<CR>
 " RSpec.vim settings and mappings
 let g:rspec_command = 'time spring rspec {spec}'
+" let g:rspec_command = 'rspec {spec}'
+" let g:rspec_command = 'zeus rspec {spec}'
 map <Leader>s :call RunNearestSpec()<CR>
 " map <Leader>ss :call RunLastSpec()<CR>
 map <Leader>a :call RunAllSpecs()<CR>
