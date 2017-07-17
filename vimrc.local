@@ -16,6 +16,9 @@ endif
 " Reload the vimrc file
 nmap <silent> <leader>v :so $MYVIMRC<CR>
 
+" Save the current file path
+nmap cp :let @" = expand("%")
+
 " Scroll window to optimal spot for work (5 lines below top of screen)
 nmap <silent> <leader>TT z<CR>15<C-y>
 
