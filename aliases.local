@@ -7,7 +7,6 @@ alias rn='./bin/run_ios'
 alias rna='./bin/run_android'
 alias gcl='g clone'
 alias gp='g push'
-alias l='ls -al'
 alias gpu='g pull'
 alias gf='g ci --fixup'
 alias gfh='gf HEAD'
@@ -65,6 +64,10 @@ alias dp='rake production deploy'
 alias ds='rake staging deploy'
 alias fix='$EDITOR `git diff --name-only | uniq`'
 alias remove_stale_postgres_pid_file='rm /usr/local/var/postgres/postmaster.pid'
+alias ra='rubocop -a'
+alias ja='yarn lint-write; yarn tsc'
+alias sa='yarn run stylelint --syntax scss app/assets/stylesheets/**/*.scss --fix'
+alias l='ra; ja; sa'
 
 # Include private aliases
 [[ -f ~/.aliases.private ]] && source ~/.aliases.private
