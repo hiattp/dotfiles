@@ -59,6 +59,7 @@ noremap <Leader>RV :%s/\%V
 " Break out of insert mode and save
 inoremap <Esc> <Esc><Esc>:up<CR>
 " Navigate lines
+map <leader>l $
 map <leader>h ^
 " Don't skip over second part of a broken line
 nnoremap j gj
