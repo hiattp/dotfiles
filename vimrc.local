@@ -59,7 +59,6 @@ noremap <Leader>RV :%s/\%V
 " Break out of insert mode and save
 inoremap <Esc> <Esc><Esc>:up<CR>
 " Navigate lines
-map <leader>l $
 map <leader>h ^
 " Don't skip over second part of a broken line
 nnoremap j gj
@@ -78,15 +77,18 @@ nnoremap <expr> p getline('.') =~? '\v^\s+$' ? "\"_ddP=`]" : "p=`]"
 nnoremap sos osave_and_open_screenshot<ESC>
 " Clear search matches
 map <leader>c :nohlsearch<CR>
-" RSpec.vim settings and mappings
-" let g:rspec_command = 'rspec {spec}'
-let g:rspec_command = 'time spring rspec {spec} --fail-fast'
-let g:rspec_runner = "os_x_iterm2"
-" let g:rspec_command = 'rspec {spec}'
-" let g:rspec_command = 'zeus rspec {spec}'
-map <Leader>s :call RunNearestSpec()<CR>
-" map <Leader>ss :call RunLastSpec()<CR>
-map <Leader>a :call RunAllSpecs()<CR>
+
+" vim-test settings:
+let test#strategy = "iterm"
+let test#ruby#rspec#options = {
+  \ 'nearest': '--backtrace',
+  \ 'file':    '--format documentation',
+  \ 'suite':   '--fail-fast',
+\}
+let test#ruby#use_spring_binstub = 1
+let test#ruby#rspec#file_pattern = '_spec\.rb'
+let g:test#no_alternate = 1
+
 " Enter Explore faster
 map <Leader>e :Explore<CR>
 
