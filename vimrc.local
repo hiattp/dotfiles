@@ -82,7 +82,6 @@ map <leader>c :nohlsearch<CR>
 " vim-test settings:
 let test#strategy = "iterm"
 let test#ruby#rspec#options = {
-  \ 'nearest': '--backtrace',
   \ 'file':    '--format documentation',
   \ 'suite':   '--fail-fast',
 \}

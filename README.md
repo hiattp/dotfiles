@@ -60,8 +60,11 @@ Then restart the shell and enjoy!
 
 ## Other Notes:
 
-You'll want [this](https://github.com/carsomyr/rbenv-bundler) rbenv plugin to
-avoid typing `bundle exec`. If you use Heroku you might want to use
+The flavor du jour of runtime version managers (as far as these dotfiles are
+concerned) is [asdf-vm](https://asdf-vm.com/). You'll want to follow install
+instructions there or remove `asdf` references in such places as `zshrc.local`.
+
+If you use Heroku you might want to use
 [heroku accounts](https://github.com/heroku/heroku-accounts) and
 [heroku-binstubs](https://github.com/tpope/heroku-binstubs).
 
