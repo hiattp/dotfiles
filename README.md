@@ -48,6 +48,9 @@ concerned) is [asdf-vm](https://asdf-vm.com/). You'll want to follow install
 instructions there if you didn't pull it in via the laptop script above,
 or remove `asdf` references in such places as `zshrc.local`.
 
+If you need a process manager (like Foreman), consider using
+[overmind](https://github.com/DarthSim/overmind).
+
 If you use Heroku you might want to use
 [heroku accounts](https://github.com/heroku/heroku-accounts) and
 [heroku-binstubs](https://github.com/tpope/heroku-binstubs).
