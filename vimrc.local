@@ -87,7 +87,11 @@ let test#ruby#rspec#options = {
 \}
 let test#ruby#use_spring_binstub = 1
 let test#ruby#rspec#file_pattern = '_spec\.rb'
+let test#python#runner = 'pytest'
 let g:test#no_alternate = 1
+
+" Python linter (Black)
+autocmd BufWritePre *.py execute ':Black'
 
 " Enter Explore faster
 map <Leader>e :Explore<CR>

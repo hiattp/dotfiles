@@ -1,5 +1,10 @@
 PATH="./bin:/usr/local/bin:/usr/local/sbin:/usr/local/git/bin:$PATH"
-cdpath=($HOME/Sites $HOME/Lockstep/apps)
+cdpath=($HOME/Sites $HOME/Lockstep/apps $HOME/projects)
+
+export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+
+# Path to Poetry for Python dependency management
+export PATH="$HOME/.poetry/bin:$PATH"
 
 # Oh My ZSH Template:
 
