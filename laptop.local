@@ -30,7 +30,6 @@ EOF
 
 fancy_echo "Cleaning up old Homebrew formulae ..."
 brew cleanup
-brew cask cleanup
 
 git_clone_or_pull "https://github.com/thoughtbot/dotfiles.git" "~/.thoughtbot-dotfiles"
 git_clone_or_pull "https://github.com/hiattp/dotfiles.git" "~/.hiattp-dotfiles"
