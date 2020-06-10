@@ -35,7 +35,9 @@ git_clone_or_pull "https://github.com/thoughtbot/dotfiles.git" "~/.thoughtbot-do
 git_clone_or_pull "https://github.com/hiattp/dotfiles.git" "~/.hiattp-dotfiles"
 cp ~/.hiattp-dotfiles/rcrc ~/.rcrc
 
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+if [[ ! -d "~/.oh-my-zsh" ]]; then
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+fi
 
 if [ -r "$HOME/.rcrc" ]; then
   fancy_echo "Updating dotfiles ..."
