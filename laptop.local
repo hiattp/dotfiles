@@ -1,0 +1,42 @@
+#!/bin/sh
+
+brew unlink vim
+
+brew bundle --file=- <<EOF
+brew "macvim"
+brew "overmind"
+brew "python"
+brew "vips"
+cask "iterm2"
+cask "google-chrome"
+cask "github"
+cask "dropbox"
+cask "1password"
+cask "karabiner-elements"
+EOF
+
+fancy_echo "Cleaning up old Homebrew formulae ..."
+brew cleanup
+brew cask cleanup
+
+git clone https://github.com/thoughtbot/dotfiles.git ~/.thoughtbot-dotfiles
+git clone https://github.com/hiattp/dotfiles.git ~/.hiattp-dotfiles
+mv ~/.hiattp-dotfiles/rcrc ~/.rcrc
+
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+if [ -r "$HOME/.rcrc" ]; then
+  fancy_echo "Updating dotfiles ..."
+  rcup
+fi
+
+curl -sSL 'https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py' | python
+
+curl \
+  -fsS \
+  -o ~/.config/karabiner/assets/complex_modifications/escape_multifunction.json \
+  'https://gist.githubusercontent.com/hiattp/e4b2c8b04a6db4f531264ca759e0d2ab/raw/00d0bc6c75fd09074f37a6d06c7cc609bca03fd7/escape_multifunction.json'
+
+sudo pip3 install black
+
+gem_install_or_update "gem-ctags"
