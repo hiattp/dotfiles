@@ -1,5 +1,18 @@
 #!/bin/sh
 
+git_clone_or_pull() {
+  local REPOSRC=$1
+  local LOCALREPO=$2
+  local LOCALREPO_VC_DIR=$LOCALREPO/.git
+  if [[ ! -d "$LOCALREPO_VC_DIR" ]]; then
+    git clone --recursive $REPOSRC $LOCALREPO
+  else
+    pushd $LOCALREPO
+    git pull $REPOSRC && git submodule update --init --recursive
+    popd
+  fi
+}
+
 brew unlink vim
 
 brew bundle --file=- <<EOF
@@ -19,9 +32,9 @@ fancy_echo "Cleaning up old Homebrew formulae ..."
 brew cleanup
 brew cask cleanup
 
-git clone https://github.com/thoughtbot/dotfiles.git ~/.thoughtbot-dotfiles
-git clone https://github.com/hiattp/dotfiles.git ~/.hiattp-dotfiles
-mv ~/.hiattp-dotfiles/rcrc ~/.rcrc
+git_clone_or_pull "https://github.com/thoughtbot/dotfiles.git" "~/.thoughtbot-dotfiles"
+git_clone_or_pull "https://github.com/hiattp/dotfiles.git" "~/.hiattp-dotfiles"
+cp ~/.hiattp-dotfiles/rcrc ~/.rcrc
 
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
@@ -37,6 +50,6 @@ curl \
   -o ~/.config/karabiner/assets/complex_modifications/escape_multifunction.json \
   'https://gist.githubusercontent.com/hiattp/e4b2c8b04a6db4f531264ca759e0d2ab/raw/00d0bc6c75fd09074f37a6d06c7cc609bca03fd7/escape_multifunction.json'
 
-sudo pip3 install black
+pip3 install black
 
 gem_install_or_update "gem-ctags"
