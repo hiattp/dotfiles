@@ -17,4 +17,4 @@ Plug 'ianks/vim-tsx'
 Plug 'ngmy/vim-rubocop'
 Plug 'cakebaker/scss-syntax.vim'
 Plug 'tpope/vim-dispatch'
-Plug 'psf/black', { 'tag': '19.10b0' }
+Plug 'psf/black'

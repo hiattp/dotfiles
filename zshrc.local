@@ -24,6 +24,8 @@ export PATH=${PATH}:${ANDROID_HOME}/platform-tools
 # time that oh-my-zsh is loaded.
 ZSH_THEME="random"
 
+ZSH_DISABLE_COMPFIX=true
+
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
 
@@ -96,5 +98,3 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-
-. /usr/local/opt/asdf/asdf.sh
