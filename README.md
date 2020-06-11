@@ -18,6 +18,7 @@ included in the thoughtbot script by default):
 9. 1Password
 10. Karabiner Elements
 11. GitHub
+12. Divvy
 
 ```
 git clone https://github.com/hiattp/dotfiles.git ~/.hiattp-dotfiles
