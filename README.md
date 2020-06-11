@@ -32,7 +32,7 @@ were installed:
 
 1. In Karabiner Elements, go to "Complex modifications" and "Add rule" to find
    the Escape Multifunction behavior and enable it. Then choose "Parameters" and
-   change `to_if_alone_timeout_miliseconds` to 500.
+   change `to_if_alone_timeout_milliseconds` to 500.
 2. In Karabiner Elements, map Caps Lock to Escape as a "Simple modification".
 3. In iTerm2 check Profiles > Default > Reuse previous sessions directory.
 4. In iTerm2 change Profiles > Default > Terminal > Scroll back links to 10,000.
