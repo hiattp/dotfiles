@@ -7,6 +7,8 @@
   di = diff
   br = branch
   sta = stash
+[pull]
+  ff = only
 [filter "media"]
   clean = git-media-clean %f
   smudge = git-media-smudge %f
