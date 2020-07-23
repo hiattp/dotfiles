@@ -27,6 +27,10 @@ cask "dropbox"
 cask "1password"
 cask "karabiner-elements"
 cask "divvy"
+cask "microsoft-word"
+cask "microsoft-excel"
+cask "microsoft-teams"
+cask "microsoft-powerpoint"
 EOF
 
 fancy_echo "Cleaning up old Homebrew formulae ..."

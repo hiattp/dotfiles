@@ -19,6 +19,7 @@ included in the thoughtbot script by default):
 10. Karabiner Elements
 11. GitHub
 12. Divvy
+13. Microsoft Teams, Excel, Word and Powerpoint
 
 ```
 git clone https://github.com/hiattp/dotfiles.git ~/.hiattp-dotfiles
