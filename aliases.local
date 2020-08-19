@@ -62,6 +62,9 @@ alias ra='rubocop -a'
 alias ja='yarn lint-write; yarn tsc'
 alias sa='yarn run stylelint --syntax scss app/assets/stylesheets/**/*.scss --fix'
 alias l='ra; ja; sa'
+alias ti='terraform init'
+alias tp='terraform plan'
+alias ta='terraform apply'
 
 # Include private aliases
 [[ -f ~/.aliases.private ]] && source ~/.aliases.private
