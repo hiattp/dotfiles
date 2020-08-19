@@ -5,3 +5,15 @@ export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 
 # Path to Poetry for Python dependency management
 export PATH="$HOME/.poetry/bin:$PATH"
+
+export PATH="$HOME/.bin:$PATH"
+
+# NOTE: The laptop script does attempt to insert asdf into this file but it ties
+# to a specific user and doesn't include completions. Perhaps best to include
+# it here directly instead of relying on the laptop script. Reference:
+#
+# https://asdf-vm.com/#/core-manage-asdf-vm
+. $HOME/.asdf/asdf.sh
+fpath=(${ASDF_DIR}/completions $fpath)
+autoload -Uz compinit
+compinit
