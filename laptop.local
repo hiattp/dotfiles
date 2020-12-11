@@ -51,8 +51,6 @@ curl \
   -o ~/.config/karabiner/assets/complex_modifications/escape_multifunction.json \
   'https://gist.githubusercontent.com/hiattp/e4b2c8b04a6db4f531264ca759e0d2ab/raw/00d0bc6c75fd09074f37a6d06c7cc609bca03fd7/escape_multifunction.json'
 
-pip3 install black
-
 gem_install_or_update "gem-ctags"
 
 if [ -r "$HOME/.rcrc" ]; then
