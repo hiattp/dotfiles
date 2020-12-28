@@ -47,6 +47,8 @@ were installed:
 9. In Chrome uncheck Chrome > Warn Before Quitting.
 10. Configure/Setup Dropbox
 11. Configure/Setup 1Password
+12. Speed up the mouse scaling with `defaults write -g com.apple.mouse.scaling  12.0`.
+    A restart is needed for this to take effect.
 
 ## Dotfile Installation on Existing Systems
 

@@ -91,7 +91,7 @@ let test#python#runner = 'pytest'
 let g:test#no_alternate = 1
 
 " Python linter (Black)
-autocmd BufWritePre *.py execute ':Black'
+" autocmd BufWritePre *.py execute ':Black'
 
 " Enter Explore faster
 map <Leader>e :Explore<CR>
