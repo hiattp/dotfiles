@@ -36,6 +36,7 @@ cask "microsoft-word"
 cask "microsoft-excel"
 cask "microsoft-teams"
 cask "microsoft-powerpoint"
+cask "docker"
 EOF
 
 fancy_echo "Cleaning up old Homebrew formulae ..."

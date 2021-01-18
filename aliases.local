@@ -65,6 +65,8 @@ alias l='ra; ja; sa'
 alias ti='terraform init'
 alias tp='terraform plan'
 alias ta='terraform apply'
+alias st='brew unlink terraform; brew link terraform'
+alias st13='brew unlink terraform; brew link terraform@0.13'
 
 # Include private aliases
 [[ -f ~/.aliases.private ]] && source ~/.aliases.private
