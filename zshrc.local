@@ -8,6 +8,33 @@ export PATH="$HOME/.poetry/bin:$PATH"
 
 export PATH="$HOME/.bin:$PATH"
 
+# TODO: Move these functions into a functions directory.
+function pwpush {
+  readonly password=${1:?"The password must be specified."}
+
+  curl -X POST --silent \
+    --data "password[payload]=$password&password[expire_after_days]=2&password[expire_after_views]=2" https://pwpush.com/p.json | \
+    python3 -c "import sys, json; print(f'https://pwpush.com/p/{json.load(sys.stdin)[\"url_token\"]}')"
+}
+
+function add_aws_access {
+    readonly username=${1:?"The username must be specified."}
+    readonly password=${2:?"The password must be specified."}
+    aws iam create-login-profile --user-name $username --password $password --no-password-reset-required
+
+    print "Console access:"
+    print "Username: $username"
+    print "Password:"
+    pwpush $password
+
+    print ""
+    print "CLI Access:"
+    creds=$(aws iam create-access-key --user-name $username | \
+      python3 -c "import sys, json; key = json.load(sys.stdin)['AccessKey']; print(f'Key: {key[\"AccessKeyId\"]}\nSecret: {key[\"SecretAccessKey\"]}')"
+    )
+    pwpush $creds
+}
+
 # NOTE: The laptop script does attempt to insert asdf into this file but it ties
 # to a specific user and doesn't include completions. Perhaps best to include
 # it here directly instead of relying on the laptop script. Reference:

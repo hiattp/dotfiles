@@ -67,6 +67,9 @@ alias tp='terraform plan'
 alias ta='terraform apply'
 alias st='brew unlink terraform; brew link terraform'
 alias st13='brew unlink terraform; brew link terraform@0.13'
+alias assume-role='function(){eval $(command assume-role $@);}'
+alias vmxrc='kubectl exec -it --namespace verumex `kubectl get pods --namespace verumex | grep -m1 verumex | awk "{print $1;}"` -- bundle exec rails c'
+alias vmxlogs='kubectl logs deployment/verumex --namespace verumex --all-containers=true -f'
 
 # Include private aliases
 [[ -f ~/.aliases.private ]] && source ~/.aliases.private
