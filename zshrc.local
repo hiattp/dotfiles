@@ -35,6 +35,11 @@ function add_aws_access {
     pwpush $creds
 }
 
+function rm_aws_access {
+  readonly username=${1:?"The username must be specified."}
+  aws iam delete-login-profile --user-name $username
+}
+
 # NOTE: The laptop script does attempt to insert asdf into this file but it ties
 # to a specific user and doesn't include completions. Perhaps best to include
 # it here directly instead of relying on the laptop script. Reference:
