@@ -73,6 +73,7 @@ nnoremap <silent>Wk :set paste<CR>m`O<Esc>``:set nopaste<CR>
 nnoremap <silent>WW :Ag <C-r><C-w><CR>
 " Paste over lines with whitespace (common when using snipmate)
 nnoremap <expr> p getline('.') =~? '\v^\s+$' ? "\"_ddP=`]" : "p=`]"
+let g:snipMate = { 'snippet_version' : 1 }
 
 " Insert last ditch effort in integration tests
 nnoremap sos osave_and_open_screenshot<ESC>
