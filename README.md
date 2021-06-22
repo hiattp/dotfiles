@@ -74,3 +74,6 @@ version.
 If you use Heroku you might want to use
 [heroku accounts](https://github.com/heroku/heroku-accounts) and
 [heroku-binstubs](https://github.com/tpope/heroku-binstubs).
+
+The laptop script installs [gem-ctags](https://github.com/tpope/gem-ctags) so
+any ruby project will benefit from running `gem ctags`.
