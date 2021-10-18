@@ -14,7 +14,8 @@ function pwpush {
 
   curl -X POST --silent \
     --data "password[payload]=$password&password[expire_after_days]=2&password[expire_after_views]=2" https://pwpush.com/p.json | \
-    python3 -c "import sys, json; print(f'https://pwpush.com/p/{json.load(sys.stdin)[\"url_token\"]}')"
+    python3 -c "import sys, json; print(f'https://pwpush.com/p/{json.load(sys.stdin)[\"url_token\"]}')" | \
+    pbcopy
 }
 
 function add_aws_access {

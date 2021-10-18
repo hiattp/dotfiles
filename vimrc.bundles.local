@@ -11,10 +11,11 @@ Plug 'jgdavey/vim-blockle'
 Plug 'jiangmiao/auto-pairs'
 Plug 'mxw/vim-jsx'
 Plug 'vim-scripts/ReplaceWithRegister'
-Plug 'ap/vim-css-color'
+" This is kind of intresting but let's face it, you don't want to do
+" color tuning in your text editor...right?
+" Plug 'ap/vim-css-color'
 Plug 'leafgarland/typescript-vim'
 Plug 'ianks/vim-tsx'
-Plug 'ngmy/vim-rubocop'
 Plug 'cakebaker/scss-syntax.vim'
 Plug 'tpope/vim-dispatch'
 " Plug 'psf/black', { 'tag': '19.10b0' }

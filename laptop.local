@@ -41,6 +41,7 @@ cask "microsoft-teams"
 cask "microsoft-powerpoint"
 cask "docker"
 cask "synergy"
+cask "clickup"
 EOF
 
 fancy_echo "Cleaning up old Homebrew formulae ..."

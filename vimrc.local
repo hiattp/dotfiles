@@ -47,7 +47,7 @@ set complete-=d
 
 " Paste from clipboard
 map <leader>p :set paste<cr>:r !pbpaste<cr>:set nopaste<cr>
-map <leader>bb :Gblame<CR>
+map <leader>bb :Git blame<CR>
 " Faster saving
 noremap <Leader>w :up<CR>
 " Faster quit
@@ -70,7 +70,7 @@ map Di ddO
 " Adds whitespace above or below with alt j/k
 nnoremap <silent>Wj :set paste<CR>m`o<Esc>``:set nopaste<CR>
 nnoremap <silent>Wk :set paste<CR>m`O<Esc>``:set nopaste<CR>
-nnoremap <silent>WW :Ag <C-r><C-w><CR>
+nnoremap <C-S> :Ag <C-r><C-w><CR>
 " Paste over lines with whitespace (common when using snipmate)
 nnoremap <expr> p getline('.') =~? '\v^\s+$' ? "\"_ddP=`]" : "p=`]"
 let g:snipMate = { 'snippet_version' : 1 }
