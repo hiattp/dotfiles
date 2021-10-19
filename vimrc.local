@@ -5,10 +5,10 @@ set path=$PWD/**
 set noerrorbells visualbell t_vb=
 autocmd GUIEnter * set visualbell t_vb=
 
-map <Leader>f :e <C-R>=expand("%:p:h") . "/" <CR>
 " Auto-indent in a way that makes sense
 set autoindent
 
+" Use silver searcher for cp operations (file search)
 if executable('ag')
   let g:ctrlp_user_command = 'ag %s -l --nocolor --follow -g ""'
 endif
@@ -24,7 +24,8 @@ nmap <silent> <leader>TT z<CR>15<C-y>
 
 " Dodge a couple keystrokes on vim commands
 nnoremap ; :
-nnoremap <leader>f ;
+" Can't remember what this was for:
+" nnoremap <leader>f ;
 
 " Put latest yanked text (bypass latest deleted text in default buffer)
 noremap YP "0P
@@ -56,8 +57,10 @@ noremap <Leader>q :up<CR>:q<CR>
 noremap <Leader>S :Ag<Space>
 noremap <Leader>R :%s/
 noremap <Leader>RV :%s/\%V
-" Break out of insert mode and save
-inoremap <Esc> <Esc><Esc>:up<CR>
+" Break out of insert mode and save. Removing for now because it seems I tend
+" to save often anyway given not all changes are in insert mode, so this is
+" extra overhead.
+" inoremap <Esc> <Esc><Esc>:up<CR>
 " Navigate lines
 map <leader>l $
 map <leader>h ^
@@ -90,9 +93,6 @@ let test#ruby#use_spring_binstub = 1
 let test#ruby#rspec#file_pattern = '_spec\.rb'
 let test#python#runner = 'pytest'
 let g:test#no_alternate = 1
-
-" Python linter (Black)
-" autocmd BufWritePre *.py execute ':Black'
 
 " Enter Explore faster
 map <Leader>e :Explore<CR>

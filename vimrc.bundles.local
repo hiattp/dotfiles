@@ -3,20 +3,26 @@ Plug 'tomtom/tlib_vim'
 Plug 'MarcWeber/vim-addon-mw-utils'
 Plug 'garbas/vim-snipmate'
 Plug 'hiattp/vim-snippets'
-Plug 'xolox/vim-misc'
-Plug 'xolox/vim-session'
 Plug 'kana/vim-textobj-user'
 Plug 'nelstrom/vim-textobj-rubyblock'
 Plug 'jgdavey/vim-blockle'
 Plug 'jiangmiao/auto-pairs'
 Plug 'mxw/vim-jsx'
 Plug 'vim-scripts/ReplaceWithRegister'
-" This is kind of intresting but let's face it, you don't want to do
-" color tuning in your text editor...right?
-" Plug 'ap/vim-css-color'
 Plug 'leafgarland/typescript-vim'
 Plug 'ianks/vim-tsx'
 Plug 'cakebaker/scss-syntax.vim'
 Plug 'tpope/vim-dispatch'
-" Plug 'psf/black', { 'tag': '19.10b0' }
 Plug 'hashivim/vim-terraform'
+
+" This is kind of intresting but let's face it, you don't want to do
+" color tuning in your text editor...right?
+" Plug 'ap/vim-css-color'
+" Can't remember why I removed this...try adding back when tackling another
+" python-heavy project.
+" Plug 'psf/black', { 'tag': '19.10b0' }
+" Recently I've found it is useful to recreate sessions rather than try to save
+" them, it helps reinforce the implementation in working memory. But this may
+" become more useful in the future so leaving it for reference:
+" Plug 'xolox/vim-misc'
+" Plug 'xolox/vim-session'
