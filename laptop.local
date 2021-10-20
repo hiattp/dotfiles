@@ -15,6 +15,8 @@ git_clone_or_pull() {
 
 brew unlink vim
 
+# NOTE: Try https://awsu.me/ instead of assume-role.
+# brew "remind101/formulae/assume-role"
 brew bundle --file=- <<EOF
 brew "macvim"
 brew "overmind"
@@ -26,7 +28,6 @@ brew "sops"
 brew "kubectl"
 brew "helm"
 brew "fluxctl"
-brew "remind101/formulae/assume-role"
 cask "iterm2"
 cask "google-chrome"
 cask "github"
@@ -42,6 +43,7 @@ cask "microsoft-powerpoint"
 cask "docker"
 cask "synergy"
 cask "clickup"
+cask "spotify"
 EOF
 
 fancy_echo "Cleaning up old Homebrew formulae ..."
