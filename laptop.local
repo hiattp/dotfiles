@@ -46,6 +46,7 @@ cask "docker"
 cask "synergy"
 cask "clickup"
 cask "spotify"
+cask "zoom"
 EOF
 
 fancy_echo "Cleaning up old Homebrew formulae ..."
