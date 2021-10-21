@@ -17,10 +17,12 @@ brew unlink vim
 
 # NOTE: Try https://awsu.me/ instead of assume-role.
 # brew "remind101/formulae/assume-role"
+# NOTE: We should manage python with asdf. Keeping here just in case we need
+# it via homebrew for some reason:
+# brew "python"
 brew bundle --file=- <<EOF
 brew "macvim"
 brew "overmind"
-brew "python"
 brew "vips"
 brew "terraform"
 brew "awscli"
