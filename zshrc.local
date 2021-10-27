@@ -4,6 +4,11 @@ cdpath=($HOME/Sites $HOME/projects)
 export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 
 export PATH="$HOME/.bin:$PATH"
+# TODO: This is only necessary until the homebrew MacVim cask is supported
+# by Apple Silicon:
+export PATH="/Applications/MacVim.app/Contents/bin:$PATH"
+export PATH="$HOME/Library/Python/3.8/bin:$PATH"
+
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # TODO: Move these functions into a functions directory.
