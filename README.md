@@ -22,8 +22,7 @@ included in the thoughtbot script by default):
 13. Microsoft Teams, Excel, Word and Powerpoint
 
 ```
-git clone https://github.com/hiattp/dotfiles.git ~/.hiattp-dotfiles
-cp ~/.hiattp-dotfiles/laptop.local ~/.laptop.local
+curl https://raw.githubusercontent.com/hiattp/dotfiles/master/laptop.local > ~/.laptop.local
 curl --remote-name https://raw.githubusercontent.com/thoughtbot/laptop/master/mac
 sh mac 2>&1 | tee ~/laptop.log
 ```
