@@ -48,13 +48,11 @@ alias p='ping google.com'
 # Run once in every rails project directory to shim bundle exec
 alias bunbin='bundle install --binstubs .bundle/bin'
 
-# BEGIN: These depend on Heroku binstubs being set up:
-# https://github.com/tpope/heroku-binstubs
-alias pc='./bin/production run rails c'
-alias sc='./bin/staging run rails c'
-alias op='./bin/production open'
-alias os='./bin/staging open'
-# END
+# Run the rails console in our EKS clusters:
+alias pc='awsume verumex-production-kubernetes-administrator; kubectl config use-context verumex-production-us; kubectl exec -it --namespace verumex `kubectl get pods --field-selector=status.phase=Running --namespace verumex --selector=app.kubernetes.io/instance=verumex | grep -m1 verumex | awk "{print $1;}"` -- bundle exec rails c'
+alias plogs='awsume verumex-production-kubernetes-administrator; kubectl config use-context verumex-production-us; kubectl logs deployment/verumex --namespace verumex --all-containers=true -f'
+alias sc='awsume verumex-staging-kubernetes-administrator; kubectl config use-context verumex-staging-us; kubectl exec -it --namespace verumex `kubectl get pods --field-selector=status.phase=Running --namespace verumex --selector=app.kubernetes.io/instance=verumex | grep -m1 verumex | awk "{print $1;}"` -- bundle exec rails c'
+alias slogs='awsume verumex-staging-kubernetes-administrator; kubectl config use-context verumex-staging-us; kubectl logs deployment/verumex --namespace verumex --all-containers=true -f'
 
 alias fix='$EDITOR `git diff --name-only | uniq`'
 alias remove_stale_postgres_pid_file='rm /usr/local/var/postgres/postmaster.pid'
@@ -66,11 +64,6 @@ alias l='ra; ja; sa'
 alias ti='terraform init'
 alias tp='terraform plan'
 alias ta='terraform apply'
-alias st='brew unlink terraform; brew link terraform'
-alias st13='brew unlink terraform; brew link terraform@0.13'
-alias assume-role='function(){eval $(command assume-role $@);}'
-alias vmxrc='kubectl exec -it --namespace verumex `kubectl get pods --namespace verumex | grep -m1 verumex | awk "{print $1;}"` -- bundle exec rails c'
-alias vmxlogs='kubectl logs deployment/verumex --namespace verumex --all-containers=true -f'
 
 # Include private aliases
 [[ -f ~/.aliases.private ]] && source ~/.aliases.private
