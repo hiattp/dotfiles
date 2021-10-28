@@ -64,7 +64,7 @@ curl \
 # Install awsume to facilitate AWS IAM role adoption (and other python-based
 # CLI tools via pipx):
 pipx completions
-pipx -f install awsume
+pipx install awsume --force
 
 gem_install_or_update "gem-ctags"
 
