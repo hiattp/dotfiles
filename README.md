@@ -48,6 +48,8 @@ were installed:
 11. Configure/Setup 1Password
 12. Speed up the mouse scaling with `defaults write -g com.apple.mouse.scaling  12.0`.
     A restart is needed for this to take effect.
+13. Go to iTerm2 > Preferences > Profiles and click Other Actions > Import JSON
+    Profiles, importing `iterm_profile.json`.
 
 ## Dotfile Installation on Existing Systems
 

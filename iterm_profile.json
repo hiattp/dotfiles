@@ -66,7 +66,7 @@
   "Prompt Before Closing 2" : false,
   "BM Growl" : true,
   "Command" : "",
-  "Description" : "Default",
+  "Description" : "Default from dotfiles.",
   "Mouse Reporting" : true,
   "Screen" : -1,
   "Selection Color" : {
@@ -83,7 +83,7 @@
   },
   "Custom Command" : "No",
   "ASCII Anti Aliased" : true,
-  "Non Ascii Font" : "Monaco 12",
+  "Non Ascii Font" : "Monaco 19",
   "Vertical Spacing" : 1,
   "Use Bold Font" : true,
   "Option Key Sends" : 0,
@@ -282,7 +282,7 @@
     "Blue Component" : 1,
     "Red Component" : 0.3333333432674408
   },
-  "Name" : "Default",
+  "Name" : "hiattp",
   "Cursor Text Color" : {
     "Green Component" : 1,
     "Blue Component" : 1,
@@ -322,7 +322,7 @@
     "Blue Component" : 0,
     "Red Component" : 0.73333334922790527
   },
-  "Normal Font" : "Monaco 12",
+  "Normal Font" : "Monaco 19",
   "Custom Directory" : "Recycle",
   "Right Option Key Sends" : 0,
   "Ansi 6 Color" : {
