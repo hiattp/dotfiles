@@ -8,18 +8,18 @@ up a new machine. The `laptop.local` script here will install the following (not
 included in the thoughtbot script by default):
 
 1. MacVim
-2. [Overmind](https://github.com/DarthSim/overmind)
-3. Python (with Pip)
-4. vips (image processing)
-5. iTerm2
-6. Google Chrome
-7. Karabiner Elements
-8. Dropbox
-9. 1Password
-10. Karabiner Elements
-11. GitHub
-12. Divvy
-13. Microsoft Teams, Excel, Word and Powerpoint
+1. [Overmind](https://github.com/DarthSim/overmind)
+1. Python (with Pip)
+1. vips (image processing)
+1. iTerm2
+1. Google Chrome
+1. Karabiner Elements
+1. Dropbox
+1. 1Password
+1. Karabiner Elements
+1. GitHub
+1. Divvy
+1. Microsoft Teams, Excel, Word and Powerpoint
 
 ```
 curl https://raw.githubusercontent.com/hiattp/dotfiles/master/laptop.local > ~/.laptop.local
@@ -33,23 +33,20 @@ were installed:
 1. In Karabiner Elements, go to "Complex modifications" and "Add rule" to find
    the Escape Multifunction behavior and enable it. Then choose "Parameters" and
    change `to_if_alone_timeout_milliseconds` to 500.
-2. In Karabiner Elements, map Caps Lock to Escape as a "Simple modification".
-3. In iTerm2 check Profiles > Default > Reuse previous sessions directory.
-4. In iTerm2 change Profiles > Default > Terminal > Scroll back links to 10,000.
-5. In OSX change the cursor speed and key repeat speed to highest, and
+1. In Karabiner Elements, map Caps Lock to Escape as a "Simple modification".
+1. In OSX change the cursor speed and key repeat speed to highest, and
    delay until key repeat to lowest in the Mouse and Keyboard settings
    respectively.
-6. In OSX enable Accessibility > Track Pad > Click Lock Drag.
-7. In OSX Screensaver > Hot Corners set the bottom right to "Desktop" and bottom
-   left to "Lock Screen".
-8. In OSX check Trackpad > Tap to click and Tracking Speed to Fast.
-9. In Chrome uncheck Chrome > Warn Before Quitting.
-10. Configure/Setup Dropbox
-11. Configure/Setup 1Password
-12. Speed up the mouse scaling with `defaults write -g com.apple.mouse.scaling  12.0`.
-    A restart is needed for this to take effect.
-13. Go to iTerm2 > Preferences > Profiles and click Other Actions > Import JSON
-    Profiles, importing `iterm_profile.json`.
+1. In OSX enable Accessibility > Track Pad > Click Lock Drag.
+1. In OSX Screensaver > Hot Corners set the bottom right to "Desktop".
+1. In OSX check Trackpad > Tap to click and Tracking Speed to Fast.
+1. In Chrome uncheck Chrome > Warn Before Quitting.
+1. Configure/Setup Dropbox
+1. Configure/Setup 1Password
+1. Go to iTerm2 > Preferences > Profiles and click Other Actions > Import JSON
+   Profiles, importing `iterm_profile.json`.
+1. Speed up the mouse scaling with `defaults write -g com.apple.mouse.scaling  12.0`.
+   A restart is needed for this to take effect.
 
 ## Dotfile Installation on Existing Systems
 
