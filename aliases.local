@@ -49,9 +49,9 @@ alias p='ping google.com'
 alias bunbin='bundle install --binstubs .bundle/bin'
 
 # Run the rails console in our EKS clusters:
-alias pc='awsume verumex-production-kubernetes-administrator; kubectl config use-context verumex-production-us; kubectl exec -it --namespace verumex `kubectl get pods --field-selector=status.phase=Running --namespace verumex --selector=app.kubernetes.io/instance=verumex | grep -m1 verumex | awk "{print $1;}"` -- bundle exec rails c'
+alias pc='awsume verumex-production-kubernetes-administrator; kubectl config use-context verumex-production-us; kubectl exec -it --namespace verumex `kubectl get pods --field-selector=status.phase=Running --namespace verumex --selector=app.kubernetes.io/instance=verumex | grep Running | grep -m1 verumex | awk "{print $1;}"` -- bundle exec rails c'
 alias plogs='awsume verumex-production-kubernetes-administrator; kubectl config use-context verumex-production-us; kubectl logs deployment/verumex --namespace verumex --all-containers=true -f'
-alias sc='awsume verumex-staging-kubernetes-administrator; kubectl config use-context verumex-staging-us; kubectl exec -it --namespace verumex `kubectl get pods --field-selector=status.phase=Running --namespace verumex --selector=app.kubernetes.io/instance=verumex | grep -m1 verumex | awk "{print $1;}"` -- bundle exec rails c'
+alias sc='awsume verumex-staging-kubernetes-administrator; kubectl config use-context verumex-staging-us; kubectl exec -it --namespace verumex `kubectl get pods --field-selector=status.phase=Running --namespace verumex --selector=app.kubernetes.io/instance=verumex | grep Running | grep -m1 verumex | awk "{print $1;}"` -- bundle exec rails c'
 alias slogs='awsume verumex-staging-kubernetes-administrator; kubectl config use-context verumex-staging-us; kubectl logs deployment/verumex --namespace verumex --all-containers=true -f'
 
 alias fix='$EDITOR `git diff --name-only | uniq`'
