@@ -14,6 +14,7 @@ git_clone_or_pull() {
 }
 
 brew unlink vim
+brew tap azure/functions
 
 # NOTE: Try https://awsu.me/ instead of assume-role. See awsume install below
 # via pip.
@@ -31,6 +32,8 @@ brew "kubectl"
 brew "helm"
 brew "fluxctl"
 brew "pipx"
+brew "azure-cli"
+brew "azure-functions-core-tools@4"
 cask "iterm2"
 cask "google-chrome"
 cask "github"
@@ -45,7 +48,17 @@ cask "docker"
 cask "clickup"
 cask "spotify"
 cask "zoom"
+cask "parallels"
+cask "visual-studio-code"
 EOF
+
+add_or_update_asdf_plugin "python"
+add_or_update_asdf_plugin "terraform"
+add_or_update_asdf_plugin "golang" "https://github.com/kennyp/asdf-golang.git"
+add_or_update_asdf_plugin "rust" "https://github.com/asdf-community/asdf-rust.git"
+add_or_update_asdf_plugin "dotnet-core" "https://github.com/emersonsoares/asdf-dotnet-core.git"
+
+asdf install
 
 fancy_echo "Cleaning up old Homebrew formulae ..."
 brew cleanup

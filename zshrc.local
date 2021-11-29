@@ -8,6 +8,10 @@ export PATH="$HOME/Library/Python/3.8/bin:$PATH"
 # NOTE: This is the default location for pipx:
 export PATH="$HOME/.local/bin:$PATH"
 
+# Go Repos
+export GOPATH=$HOME/repos/go_repos
+export PATH=$PATH:$GOPATH/bin
+
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # TODO: Move these functions into a functions directory.
