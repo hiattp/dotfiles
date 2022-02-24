@@ -89,7 +89,6 @@ let test#ruby#rspec#options = {
   \ 'file':    '--format documentation',
   \ 'suite':   '--fail-fast',
 \}
-let test#ruby#use_spring_binstub = 1
 let test#ruby#rspec#file_pattern = '_spec\.rb'
 let test#python#runner = 'pytest'
 let g:test#no_alternate = 1
