@@ -59,6 +59,7 @@ cask "zoom"
 cask "parallels"
 cask "visual-studio-code"
 cask "postman"
+cask "raycast"
 EOF
 
 add_or_update_asdf_plugin "python"

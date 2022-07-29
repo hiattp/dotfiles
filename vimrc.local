@@ -109,7 +109,8 @@ set nofoldenable        "dont fold by default
 set foldlevel=1         "this is just what i use
 
 " Don't add the comment prefix when I hit enter or o/O on a comment line.
-set formatoptions-=or
+" Don't initiate a newline at the break automatically.
+set formatoptions-=ort
 
 runtime macros/matchit.vim
 
