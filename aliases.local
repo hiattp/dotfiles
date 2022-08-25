@@ -43,6 +43,7 @@ alias grd='g rebase -i development'
 alias grm='g rebase -i main'
 alias grM='g rebase -i master'
 alias p='ping google.com'
+alias ww='watch '
 # Run once in every rails project directory to shim bundle exec
 alias bunbin='bundle install --binstubs .bundle/bin'
 

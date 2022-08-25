@@ -15,6 +15,7 @@ git_clone_or_pull() {
 
 brew unlink vim
 brew tap azure/functions
+brew tap teamookla/speedtest
 
 # NOTE: Try https://awsu.me/ instead of assume-role. See awsume install below
 # via pip.
@@ -42,6 +43,7 @@ brew "jq"
 brew "eksctl"
 brew "certbot"
 brew "openblas"
+brew "speedtest"
 cask "iterm2"
 cask "google-chrome"
 cask "github"
@@ -83,6 +85,13 @@ curl \
   -fsS \
   -o ~/.config/karabiner/assets/complex_modifications/escape_multifunction.json \
   'https://gist.githubusercontent.com/hiattp/e4b2c8b04a6db4f531264ca759e0d2ab/raw/00d0bc6c75fd09074f37a6d06c7cc609bca03fd7/escape_multifunction.json'
+
+#
+# Install Go-based packages/binaries:
+#
+
+# This is an interactive wrapper for jq:
+go get github.com/fiatjaf/jiq/cmd/jiq
 
 # Install awsume to facilitate AWS IAM role adoption (and other python-based
 # CLI tools via pipx):

@@ -12,6 +12,9 @@ export PATH="$HOME/.local/bin:$PATH"
 export GOPATH=$HOME/repos/go_repos
 export PATH=$PATH:$GOPATH/bin
 
+# Kubernetes Config
+export KUBECONFIG="$HOME/.kube/config:$HOME/.kube/test-config"
+
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # TODO: Move these functions into a functions directory.
@@ -20,11 +23,15 @@ function pwpush {
 
   link=$(
     curl -X POST --silent \
-    --data "password[payload]=$password&password[expire_after_days]=2&password[expire_after_views]=2" https://pwpush.com/p.json | \
+    --data "password[payload]=$password&password[expire_after_days]=2&password[expire_after_views]=3" https://pwpush.com/p.json | \
     python3 -c "import sys, json; print(f'https://pwpush.com/p/{json.load(sys.stdin)[\"url_token\"]}')"
   )
   print $link
   echo $link | pbcopy
+}
+
+function kill_spotify {
+  ps -ax | grep -m1 Spotify | awk '{kill $1}'
 }
 
 # NOTE: Set username and password variables and run with
