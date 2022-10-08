@@ -48,6 +48,11 @@ alias ww='watch '
 alias bunbin='bundle install --binstubs .bundle/bin'
 
 alias k='kubectl'
+alias f='flux'
+alias kgp='k get pods -A'
+alias kdp='k describe pods -A'
+alias kgn='k get nodes'
+alias kdn='k describe nodes'
 # Administer EKS environments:
 alias ame='awsume verumex-management-kubernetes-administrator; kubectl config use-context verumex-management-eu'
 alias ase='awsume verumex-staging-kubernetes-administrator; kubectl config use-context verumex-staging-us'

@@ -13,7 +13,7 @@ export GOPATH=$HOME/repos/go_repos
 export PATH=$PATH:$GOPATH/bin
 
 # Kubernetes Config
-export KUBECONFIG="$HOME/.kube/config:$HOME/.kube/test-config"
+export KUBECONFIG="$HOME/.kube/config:$HOME/.kube/test-config:$HOME/.kube/home-cluster-admin-config"
 
 eval "$(/opt/homebrew/bin/brew shellenv)"
 

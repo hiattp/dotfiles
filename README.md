@@ -73,5 +73,8 @@ If you use Heroku you might want to use
 [heroku accounts](https://github.com/heroku/heroku-accounts) and
 [heroku-binstubs](https://github.com/tpope/heroku-binstubs).
 
-The laptop script installs [gem-ctags](https://github.com/tpope/gem-ctags) so
-any ruby project will benefit from running `gem ctags`.
+The laptop script installs
+[universal-ctags](https://github.com/universal-ctags/ctags) so
+be sure to run a `ctags` command, e.g. for Rails projects:
+
+    ctags -R --languages=ruby --exclude=.git --exclude=log -f tags . $(bundle list --paths)
