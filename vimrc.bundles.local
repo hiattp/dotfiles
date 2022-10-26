@@ -1,4 +1,8 @@
 Plug 'ervandew/supertab'
+" Testing a language server for completion instead of supertab:
+" Plug 'neoclide/coc.nvim', {'branch': 'release'}
+" Plug 'neoclide/coc-solargraph'
+
 Plug 'tomtom/tlib_vim'
 Plug 'MarcWeber/vim-addon-mw-utils'
 Plug 'garbas/vim-snipmate'
@@ -15,7 +19,7 @@ Plug 'cakebaker/scss-syntax.vim'
 Plug 'tpope/vim-dispatch'
 Plug 'hashivim/vim-terraform'
 
-" This is kind of intresting but let's face it, you don't want to do
+" This is kind of interesting but let's face it, you don't want to do
 " color tuning in your text editor...right?
 " Plug 'ap/vim-css-color'
 " Can't remember why I removed this...try adding back when tackling another

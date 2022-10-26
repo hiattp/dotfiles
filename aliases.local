@@ -53,6 +53,7 @@ alias kgp='k get pods -A'
 alias kdp='k describe pods -A'
 alias kgn='k get nodes'
 alias kdn='k describe nodes'
+alias kgs='k get services -A'
 # Administer EKS environments:
 alias ame='awsume verumex-management-kubernetes-administrator; kubectl config use-context verumex-management-eu'
 alias ase='awsume verumex-staging-kubernetes-administrator; kubectl config use-context verumex-staging-us'
