@@ -248,6 +248,16 @@ function! WatchForChanges(bufname, ...)
   let @"=reg_saved
 endfunction
 
+autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
+
+" Settings for 'Yggdroot/indentLine' plugin:
+let g:indentLine_char = '⦙'
+autocmd FileType * let indentLine_enabled=0
+autocmd FileType yaml let indentLine_enabled=1
+" Settings for YAML folding:
+autocmd FileType yaml set foldenable
+autocmd FileType yaml set foldlevel=3
+
 " let autoreadargs={'autoread':1}
 " execute WatchForChanges("*",autoreadargs)
 

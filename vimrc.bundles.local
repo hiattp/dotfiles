@@ -18,6 +18,8 @@ Plug 'ianks/vim-tsx'
 Plug 'cakebaker/scss-syntax.vim'
 Plug 'tpope/vim-dispatch'
 Plug 'hashivim/vim-terraform'
+Plug 'Yggdroot/indentLine'
+Plug 'pedrohdz/vim-yaml-folds'
 
 " This is kind of interesting but let's face it, you don't want to do
 " color tuning in your text editor...right?
