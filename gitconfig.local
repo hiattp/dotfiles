@@ -1,6 +1,8 @@
 [user]
   name = Paul Hiatt
   email = hiattp@gmail.com
+[core]
+  sshCommand = ssh -i ~/.ssh/github_ed25519_20240820
 [credential]
   helper = osxkeychain
 [alias]

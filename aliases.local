@@ -57,7 +57,7 @@ alias kdn='k describe nodes'
 alias kgs='k get services -A'
 # Administer EKS environments:
 alias ame='awsume verumex-management-kubernetes-administrator; kubectl config use-context verumex-management-eu'
-alias ase='awsume verumex-staging-kubernetes-administrator; kubectl config use-context verumex-staging-us'
+alias ase='awsume verumex-staging-kubernetes-administrator; kubectl config use-context verumex-staging-eu'
 alias ape='awsume verumex-production-kubernetes-administrator; kubectl config use-context verumex-production-us'
 alias apeu='awsume verumex-production-kubernetes-administrator; kubectl config use-context verumex-production-eu'
 
@@ -80,6 +80,9 @@ alias tc='terraform console'
 alias ti='terraform init'
 alias tp='terraform plan'
 alias ta='terraform apply'
+alias get_idf='. $HOME/repos/esp/esp-idf/export.sh'
+alias setup_matter='get_idf;. $HOME/repos/esp/esp-matter/export.sh'
+alias get_ports='ls /dev/cu.*'
 
 # Include private aliases
 [[ -f ~/.aliases.private ]] && source ~/.aliases.private
