@@ -18,7 +18,6 @@ included in the thoughtbot script by default):
 1. 1Password
 1. Karabiner Elements
 1. GitHub
-1. Divvy
 1. Microsoft Teams, Excel, Word and Powerpoint
 
 ```
