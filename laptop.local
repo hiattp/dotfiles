@@ -13,16 +13,9 @@ git_clone_or_pull() {
   fi
 }
 
-brew unlink vim
 brew tap azure/functions
 brew tap teamookla/speedtest
 
-# NOTE: Try https://awsu.me/ instead of assume-role. See awsume install below
-# via pip.
-# brew "remind101/formulae/assume-role"
-# NOTE: We should manage python with asdf. Keeping here just in case we need
-# it via homebrew for some reason:
-# brew "python"
 brew bundle --file=- <<EOF
 brew "macvim"
 brew "overmind"
@@ -45,7 +38,6 @@ brew "jq"
 brew "yq"
 brew "eksctl"
 brew "certbot"
-brew "openblas"
 brew "speedtest"
 brew "cmctl"
 brew "iperf3"
@@ -67,11 +59,9 @@ cask "karabiner-elements"
 cask "openvpn-connect"
 cask "microsoft-office"
 cask "microsoft-teams"
-cask "microsoft-remote-desktop"
 cask "slack"
 cask "discord"
 cask "docker"
-cask "clickup"
 cask "spotify"
 cask "zoom"
 cask "parallels"
@@ -112,8 +102,8 @@ curl \
 # This is an interactive wrapper for jq:
 go get github.com/fiatjaf/jiq/cmd/jiq
 
-# Install awsume to facilitate AWS IAM role adoption (and other python-based
-# CLI tools via pipx):
+# Install awsume (https://awsu.me/) to facilitate AWS IAM role adoption (and
+# other python-based CLI tools via pipx):
 pipx completions
 pipx install awsume --force
 

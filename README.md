@@ -7,18 +7,69 @@ Use the [thoughtbot laptop script](https://github.com/thoughtbot/laptop) to set
 up a new machine. The `laptop.local` script here will install the following (not
 included in the thoughtbot script by default):
 
+### Developer Tools
+
 1. MacVim
 1. [Overmind](https://github.com/DarthSim/overmind)
-1. Python (with Pip)
-1. vips (image processing)
 1. iTerm2
-1. Google Chrome
-1. Karabiner Elements
-1. Dropbox
-1. 1Password
-1. Karabiner Elements
+1. Karabiner Elements (keyboard customization/remapping)
 1. GitHub
-1. Microsoft Teams, Excel, Word and Powerpoint
+1. jq
+1. jiq
+1. yq
+1. iperf3
+1. Parallels
+1. VS Code
+1. Postman
+1. OWASP Zap
+
+### Dependencies and Dependency Management
+
+1. vips (image processing)
+1. pipx
+1. Microcontroller Firmware Tooling: cmake, ninja, dfu-util, ccache, sdl2
+1. Software supply chain: notation, licensed
+
+### Infrastructure Management
+
+1. AWS CLI
+1. SOPS
+1. kubectl
+1. clusterctl
+1. Helm
+1. kind
+1. [step](https://github.com/smallstep/cli?tab=readme-ov-file)
+1. fluxctl and flux
+1. ArgoCD
+1. Azure and Azure Functions CLIs
+1. watch
+1. eksctl
+1. certbot
+1. [Cert Manager CLI](https://cert-manager.io/docs/reference/cmctl/)
+1. Balena Etcher
+1. OpenVPN Connect
+1. Lens (K8s Observation)
+1. AWSume
+
+
+### General Use
+
+1. 1Password
+1. Google Chrome
+1. Dropbox
+1. Microsoft Office/Teams/etc
+1. Speedtest CLI
+1. Tailscale
+1. Slack
+1. Discord
+1. Spotify
+1. Zoom
+1. Raycast
+1. Avast Security
+
+
+**NOTE:** Remove the line in the thoughtbot mac script that installs vim to
+avoid a clash with the MacVim install.
 
 ```
 curl https://raw.githubusercontent.com/hiattp/dotfiles/master/laptop.local > ~/.laptop.local
