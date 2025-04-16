@@ -1,0 +1,17 @@
+{
+    "workbench.colorTheme": "Default Light+",
+    "workbench.activityBar.location": "hidden",
+    "editor.minimap.enabled": false,
+    "breadcrumbs.enabled": false,
+    "editor.fontFamily": "Menlo Regular, Monaco, 'Courier New', monospace",
+    "editor.fontSize": 14,
+    "editor.lineNumbers": "relative",
+    "vim.leader": "<Space>",
+    "vim.normalModeKeyBindingsNonRecursive": [
+        { "before": ["leader", "w"], "commands": [":up"] },
+        { "before": ["leader", "q"], "commands": [":up", ":q"] },
+        { "before": ["leader", "l"], "after": ["$"] },
+        { "before": ["leader", "h"], "after": ["^"] },
+        { "before": [";"],           "after": [":"] }
+    ]
+}
