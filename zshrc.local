@@ -1,6 +1,8 @@
 PATH="./bin:/usr/local/bin:/usr/local/sbin:/usr/local/git/bin:$PATH"
 cdpath=($HOME/Sites $HOME/projects $HOME/repos)
 
+export GPG_TTY=$(tty)
+
 export IDF_CCACHE_ENABLE=1
 
 export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
@@ -78,7 +80,7 @@ function kgrp {
 function rmc {
   readonly shard=${1:?"The default shard must be specified."}
   local podname=$(kgrp)
-  local remote_command="export DEFAULT_SHARD=${shard} && bundle exec rails c"
+  local remote_command="DEFAULT_SHARD=${shard} bundle exec rails c"
   kubectl exec -it "$podname" --namespace verumex --container verumex  -- bash -c "$remote_command"
 }
 
@@ -91,7 +93,7 @@ function rmc {
 # it here directly instead of relying on the laptop script. Reference:
 #
 # https://asdf-vm.com/#/core-manage-asdf-vm
-. $HOME/.asdf/asdf.sh
+. /opt/homebrew/opt/asdf/libexec/asdf.sh
 fpath=(${ASDF_DIR}/completions $fpath)
 autoload -Uz compinit
 compinit

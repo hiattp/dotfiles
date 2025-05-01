@@ -1,4 +1,5 @@
 alias e='mvim'
+alias c='code .'
 alias ...='../..'
 alias gui='github'
 alias rc='rails c'
