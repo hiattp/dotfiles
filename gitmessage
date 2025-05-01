@@ -8,7 +8,7 @@
 # AI_QOL: 3
 # AI_TASK_COMPLEXITY: 2
 
-# ----------- #
+# ---------------------------------------------------------------------- #
 # AI Stat Definitions:
 #
 # AI_MODEL: AI Model used to assist development [gpt-4o, claude-3.7-sonnet]
@@ -18,7 +18,7 @@
 # AI_QOL: Quality of life score on a scale of 1-5, with 1 being "mostly just annoying" to 5 being "can't live without"
 # AI_TASK_COMPLEXITY: Task/ticket complexity on a scale of 1-5, with 1 being "trivial,
 #                     XS t-shirt size" to 5 being "multi-day full-stack feature with many changes"
-# ----------- #
+# ---------------------------------------------------------------------- #
  
 # NOTE
 #
