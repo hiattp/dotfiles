@@ -1,0 +1,20 @@
+{
+	"defm": {
+		"prefix": "defm",
+		"body": [
+			"def ${1:method_name}",
+			"  @${1} ||= $0",
+			"end"
+		],
+		"description": "Define a memoized Ruby method"
+	},
+	"d": {
+		"prefix": "d",
+		"body": [
+			"def $1($2)",
+			"  $0",
+			"end"
+		],
+		"description": "Define a Ruby method with parameters"
+	}
+}

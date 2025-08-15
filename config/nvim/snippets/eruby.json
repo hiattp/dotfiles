@@ -1,0 +1,11 @@
+{
+  "d.": {
+    "prefix": "d.",
+    "body": [
+      "<div class=\"$1\">",
+      "\t$2",
+      "</div>"
+    ],
+    "description": "HTML.ERB - Defines a section in a document with a class"
+  }
+}
