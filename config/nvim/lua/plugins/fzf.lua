@@ -28,5 +28,12 @@ return {
 			end,
 			desc = "Open fzf-lua live_grep",
 		},
+		{
+			"<leader>gs",
+			function()
+				require("fzf-lua").git_status()
+			end,
+			desc = "Open fzf-lua git_status",
+		},
 	},
 }

@@ -9,7 +9,7 @@ vim.keymap.set("n", "<leader>w", "<CMD>up<CR>") -- Save faster
 vim.keymap.set("n", "<leader>q", "<CMD>q<CR>") -- Quit faster
 vim.keymap.set("n", "<leader>/", "<CMD>nohlsearch<CR>") -- Clear search highlight
 vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float) -- Open diagnostics in float
-vim.keymap.set("n", "yp", ":call setreg('+', expand('%:p'))<CR>") -- Copy (yank) current file path to clipboard
+vim.keymap.set("n", "yp", ":call setreg('+', expand('%:p'))<CR>", { silent = true }) -- Copy (yank) current file path to clipboard
 vim.keymap.set("n", "<leader>k", "kj") -- Move current line to end of line above
 vim.keymap.set("n", "Di", "ddO") -- Delete line and start editing at proper indent
 vim.keymap.set("n", "Wj", "<CMD>set paste<CR>m`o<Esc>``<CMD>set nopaste<CR>", { noremap = true, silent = true }) -- Add whitespace line below

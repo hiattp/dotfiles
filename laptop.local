@@ -18,6 +18,8 @@ brew tap teamookla/speedtest
 
 brew bundle --file=- <<EOF
 brew "macvim"
+brew "neovim"
+brew "ripgrep"
 brew "overmind"
 brew "vips"
 brew "awscli"
@@ -31,6 +33,7 @@ brew "fluxctl"
 brew "fluxcd/tap/flux"
 brew "argocd"
 brew "pipx"
+brew "uv"
 brew "azure-cli"
 brew "azure-functions-core-tools@4"
 brew "watch"
@@ -107,7 +110,8 @@ go get github.com/fiatjaf/jiq/cmd/jiq
 pipx completions
 pipx install awsume --force
 
-gem_install_or_update "gem-ctags"
+# If you need ctags (not necessary if using a language server):
+# gem_install_or_update "gem-ctags"
 
 if [ -r "$HOME/.rcrc" ]; then
   fancy_echo "Updating dotfiles ..."

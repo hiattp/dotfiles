@@ -98,6 +98,21 @@ were installed:
 1. Speed up the mouse scaling with `defaults write -g com.apple.mouse.scaling  12.0`.
    A restart is needed for this to take effect.
 
+## Neovim setup
+
+Setup a python environment for neovim and install the python plugin:
+
+```
+> python -m venv ~/neovim
+> source ~/neovim/bin/activate
+> (neovim) python3 -m pip install --upgrade pynvim
+> which python
+```
+
+The output from `which` is the value to use in this setting:
+
+    let g:python3_host_prog = '/Users/phiatt/neovim/bin/python'
+
 ## Dotfile Installation on Existing Systems
 
 The following adds the `~/.hiattp-dotfiles` and  `~/.thoughtbot-dotfiles` directories, then uses rcm to symlink the dotfiles into the home directory. Note that some things won't work unless you are running Zsh instead of Bash, and you must have [rcm](https://github.com/thoughtbot/rcm) installed.
