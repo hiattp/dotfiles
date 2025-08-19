@@ -1,0 +1,199 @@
+# See git_worktree_add_copy_on_write definition below. The point of this function is to perform
+# a `git add worktree` command but also use "copy on write" to get all of the ignored files
+# into the new worktree (a fast operation that will only cause new physical files to
+# write if they are modified).
+#
+#
+# Copy-on-write clone of ignored files/dirs from the primary worktree into the target worktree
+# See: worktree_cow_ignored [-f] [DEST_WORKTREE_ROOT] [SOURCE_PRIMARY_ROOT]
+worktree_cow_ignored() {
+  emulate -L zsh
+  setopt err_return nounset pipefail
+
+  # Enable tracing when GWA_TRACE is set (for debugging)
+  if [[ -n "${GWA_TRACE-}" ]]; then
+    set -x
+  fi
+
+  # Resolve a reliable git binary even if PATH is minimal
+  local git_bin=""
+  git_bin="$(command -v git 2>/dev/null || true)"
+  if [[ -z "$git_bin" ]]; then
+    if [[ -x /opt/homebrew/bin/git ]]; then
+      git_bin=/opt/homebrew/bin/git
+    elif [[ -x /usr/local/bin/git ]]; then
+      git_bin=/usr/local/bin/git
+    elif [[ -x /usr/bin/git ]]; then
+      git_bin=/usr/bin/git
+    fi
+  fi
+  if [[ -z "$git_bin" ]]; then
+    print -ru2 -- "git not found on PATH; install Xcode Command Line Tools or Homebrew git"
+    return 127
+  fi
+
+  # Resolve core utils to absolute paths to avoid alias/ PATH issues
+  local mkdir_bin cp_bin rm_bin
+  mkdir_bin="$(command -v mkdir 2>/dev/null || true)"; [[ -x "$mkdir_bin" ]] || mkdir_bin=/bin/mkdir
+  [[ -x "$mkdir_bin" ]] || mkdir_bin=/usr/bin/mkdir
+  cp_bin="$(command -v cp 2>/dev/null || true)"; [[ -x "$cp_bin" ]] || cp_bin=/bin/cp
+  [[ -x "$cp_bin" ]] || cp_bin=/usr/bin/cp
+  rm_bin="$(command -v rm 2>/dev/null || true)"; [[ -x "$rm_bin" ]] || rm_bin=/bin/rm
+  [[ -x "$rm_bin" ]] || rm_bin=/usr/bin/rm
+
+  local force=0
+  while (( $# )); do
+    case "$1" in
+      -f|--force) force=1; shift;;
+      *) break;;
+    esac
+  done
+
+  local dest_root source_root
+  if (( $# >= 1 )); then
+    dest_root="$1"; shift
+  else
+    dest_root="$("$git_bin" rev-parse --show-toplevel 2>/dev/null)" || { print -ru2 -- "Not inside a git worktree"; return 1; }
+  fi
+
+  if (( $# >= 1 )); then
+    source_root="$1"; shift
+  else
+    local common_dir primary_worktree="" first_worktree="" block_worktree="" block_gitdir=""
+    common_dir="$("$git_bin" rev-parse --git-common-dir)"
+    common_dir="${common_dir:A}"
+    while IFS= read -r line || [[ -n "$line" ]]; do
+      if [[ "$line" == worktree\ * ]]; then
+        block_worktree="${line#worktree }"
+        if [[ -z "$first_worktree" ]]; then
+          first_worktree="$block_worktree"
+        fi
+      elif [[ "$line" == gitdir\ * ]]; then
+        block_gitdir="${line#gitdir }"
+        block_gitdir="${block_gitdir:A}"
+      elif [[ -z "$line" ]]; then
+        if [[ -n "$block_gitdir" && "$block_gitdir" == "$common_dir" ]]; then
+          primary_worktree="$block_worktree"
+        fi
+        block_worktree=""; block_gitdir=""
+      fi
+    done < <("$git_bin" worktree list --porcelain)
+    if [[ -z "$primary_worktree" && -n "$block_gitdir" && "$block_gitdir" == "$common_dir" ]]; then
+      primary_worktree="$block_worktree"
+    fi
+    # Fallback: some git versions omit gitdir; assume first worktree is primary
+    if [[ -z "$primary_worktree" && -n "$first_worktree" ]]; then
+      primary_worktree="$first_worktree"
+    fi
+    [[ -n "$primary_worktree" ]] || { print -ru2 -- "Unable to detect primary worktree"; return 1; }
+    source_root="$primary_worktree"
+  fi
+
+  if [[ "$dest_root" == "$source_root" ]]; then
+    print -ru2 -- "Destination equals primary; nothing to do."
+    return 1
+  fi
+
+  [[ -d "$source_root" && -d "$dest_root" ]] || { print -ru2 -- "Source or destination directory does not exist"; return 1; }
+
+  "$git_bin" -C "$source_root" ls-files -io --exclude-standard --directory --no-empty-directory -z \
+  | while IFS= read -r -d '' relpath; do
+      local src="$source_root/$relpath"
+      local dst="$dest_root/$relpath"
+
+      [[ -e "$src" ]] || continue
+
+      if [[ -e "$dst" ]]; then
+        (( force )) || continue
+        "$rm_bin" -rf -- "$dst"
+      fi
+
+      if [[ -d "$src" && ! -L "$src" ]]; then
+        "$mkdir_bin" -p -- "$dst"
+        if "$cp_bin" -c -R "$src/." "$dst" 2>/dev/null; then
+          :
+        else
+          "$cp_bin" -R "$src/." "$dst"
+        fi
+      else
+        "$mkdir_bin" -p -- "${dst:h}"
+        if "$cp_bin" -c "$src" "$dst" 2>/dev/null; then
+          :
+        else
+          "$cp_bin" "$src" "$dst"
+        fi
+      fi
+    done
+}
+
+# Wrapper: behaves like `git worktree add`, then runs worktree_cow_ignored on the new worktree
+# Extra flags (consumed by this wrapper, not passed to git):
+#   --no-cow       skip copy-on-write step
+#   --cow-force    force overwrite existing paths in destination
+git_worktree_add_copy_on_write() {
+  emulate -L zsh
+  setopt err_return nounset pipefail
+
+  # Enable tracing when GWA_TRACE is set (for debugging)
+  if [[ -n "${GWA_TRACE-}" ]]; then
+    set -x
+  fi
+
+  # Resolve a reliable git binary even if PATH is minimal
+  local git_bin=""
+  git_bin="$(command -v git 2>/dev/null || true)"
+  if [[ -z "$git_bin" ]]; then
+    if [[ -x /opt/homebrew/bin/git ]]; then
+      git_bin=/opt/homebrew/bin/git
+    elif [[ -x /usr/local/bin/git ]]; then
+      git_bin=/usr/local/bin/git
+    elif [[ -x /usr/bin/git ]]; then
+      git_bin=/usr/bin/git
+    fi
+  fi
+  if [[ -z "$git_bin" ]]; then
+    print -ru2 -- "git not found on PATH; install Xcode Command Line Tools or Homebrew git"
+    return 127
+  fi
+
+  local do_cow=1 cow_force=0
+  local -a git_args=()
+  local arg
+  for arg in "$@"; do
+    case "$arg" in
+      --no-cow) do_cow=0;;
+      --cow-force) cow_force=1;;
+      --cow) do_cow=1;;
+      *) git_args+=("$arg");;
+    esac
+  done
+
+  # Find <path> argument for `git worktree add`
+  local path="" saw_ddash=0
+  for arg in "${git_args[@]}"; do
+    if (( saw_ddash )); then
+      if [[ -z "$path" ]]; then path="$arg"; break; fi
+    elif [[ "$arg" == "--" ]]; then
+      saw_ddash=1
+    elif [[ "$arg" == -* ]]; then
+      continue
+    else
+      path="$arg"; break
+    fi
+  done
+  if [[ -z "$path" ]]; then
+    print -ru2 -- "Could not determine <path> for 'git worktree add'"
+    return 2
+  fi
+
+  "$git_bin" worktree add "${git_args[@]}" || return $?
+
+  if (( do_cow )); then
+    local dest="${path:A}"  # absolute path to the new worktree
+    if (( cow_force )); then
+      worktree_cow_ignored -f "$dest"
+    else
+      worktree_cow_ignored "$dest"
+    fi
+  fi
+}
