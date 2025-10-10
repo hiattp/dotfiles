@@ -281,23 +281,49 @@ return {
 		-- IMPORTANT: Use asdf shim explicitly to avoid Mason's ruby-lsp installation
 		vim.lsp.config.ruby_lsp = {
 			cmd = { os.getenv("HOME") .. "/.asdf/shims/ruby-lsp" },
-			root_dir = vim.fs.root(0, { ".git", "Gemfile", ".tool-versions" }),
+			root_dir = function(bufnr)
+				return vim.fs.root(bufnr, { ".git", "Gemfile", ".tool-versions" })
+			end,
 			capabilities = capabilities,
 			filetypes = { "ruby", "eruby" },
 		}
 
-		-- Attach ruby-lsp to each Ruby buffer without a global flag
+		-- Attach ruby-lsp to each Ruby buffer
 		-- By starting ruby-lsp from a FileType autocmd, Neovim is already in the project
 		-- directory when ruby-lsp starts, allowing asdf to detect .tool-versions
-		vim.api.nvim_create_autocmd("FileType", {
-			pattern = { "ruby", "eruby" },
+		local function ensure_ruby_lsp_attached(bufnr)
+			-- Check if buffer is valid before proceeding
+			if not vim.api.nvim_buf_is_valid(bufnr) then
+				return
+			end
+
+			-- Only proceed if this is a Ruby buffer
+			local filetype = vim.api.nvim_get_option_value("filetype", { buf = bufnr })
+			if filetype ~= "ruby" and filetype ~= "eruby" then
+				return
+			end
+
+			-- Check if ruby_lsp is already attached to this specific buffer
+			local clients = vim.lsp.get_clients({ bufnr = bufnr, name = "ruby_lsp" })
+			if #clients == 0 then
+				-- Start ruby_lsp for this specific buffer using vim.lsp.start
+				vim.lsp.start({
+					name = "ruby_lsp",
+					cmd = { os.getenv("HOME") .. "/.asdf/shims/ruby-lsp" },
+					root_dir = vim.fs.root(bufnr, { ".git", "Gemfile", ".tool-versions" }),
+					capabilities = capabilities,
+					filetypes = { "ruby", "eruby" },
+				}, { bufnr = bufnr })
+			end
+		end
+
+		-- Handle multiple buffer events to ensure LSP attaches when navigating via FZF Lua or other means
+		-- We schedule the check to ensure the buffer and filetype are fully loaded
+		vim.api.nvim_create_autocmd({ "FileType", "BufEnter", "BufWinEnter", "BufReadPost" }, {
 			callback = function(event)
-				-- Check if ruby_lsp is already attached to this specific buffer
-				local clients = vim.lsp.get_clients({ bufnr = event.buf, name = "ruby_lsp" })
-				if #clients == 0 then
-					-- Start ruby_lsp for this buffer
-					vim.cmd("LspStart ruby_lsp")
-				end
+				vim.schedule(function()
+					ensure_ruby_lsp_attached(event.buf)
+				end)
 			end,
 		})
 	end,
