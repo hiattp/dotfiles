@@ -236,9 +236,7 @@ return {
 				--   },
 				-- },
 			},
-			-- ruby_lsp = {
-			--   cmd = { os.getenv("HOME") .. "/.asdf/shims/ruby-lsp" },
-			-- },
+			-- ruby_lsp is managed by the ruby-lsp.nvim plugin instead
 			-- rubocop = {
 			--   cmd = { os.getenv("HOME") .. "/.asdf/shims/rubocop --lsp" },
 			-- },
@@ -260,6 +258,7 @@ return {
 		local ensure_installed = vim.tbl_keys(servers or {})
 		vim.list_extend(ensure_installed, {
 			"stylua", -- Used to format Lua code
+			"eslint", -- Used to format javascript and typescript
 		})
 		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
@@ -273,9 +272,33 @@ return {
 					-- by the server configuration above. Useful when disabling
 					-- certain features of an LSP (for example, turning off formatting for ts_ls)
 					server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-					require("lspconfig")[server_name].setup(server)
+					vim.lsp.enable(server_name, server)
 				end,
 			},
+		})
+
+		-- Configure ruby-lsp separately to ensure asdf picks up the correct Ruby version
+		-- IMPORTANT: Use asdf shim explicitly to avoid Mason's ruby-lsp installation
+		vim.lsp.config.ruby_lsp = {
+			cmd = { os.getenv("HOME") .. "/.asdf/shims/ruby-lsp" },
+			root_dir = vim.fs.root(0, { ".git", "Gemfile", ".tool-versions" }),
+			capabilities = capabilities,
+			filetypes = { "ruby", "eruby" },
+		}
+
+		-- Attach ruby-lsp to each Ruby buffer without a global flag
+		-- By starting ruby-lsp from a FileType autocmd, Neovim is already in the project
+		-- directory when ruby-lsp starts, allowing asdf to detect .tool-versions
+		vim.api.nvim_create_autocmd("FileType", {
+			pattern = { "ruby", "eruby" },
+			callback = function(event)
+				-- Check if ruby_lsp is already attached to this specific buffer
+				local clients = vim.lsp.get_clients({ bufnr = event.buf, name = "ruby_lsp" })
+				if #clients == 0 then
+					-- Start ruby_lsp for this buffer
+					vim.cmd("LspStart ruby_lsp")
+				end
+			end,
 		})
 	end,
 }
