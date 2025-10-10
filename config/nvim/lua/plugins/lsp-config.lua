@@ -279,7 +279,8 @@ return {
 
 		-- Configure ruby-lsp separately to ensure asdf picks up the correct Ruby version
 		-- IMPORTANT: Use asdf shim explicitly to avoid Mason's ruby-lsp installation
-		vim.lsp.config.ruby_lsp = {
+		local ruby_lsp_config = {
+			name = "ruby_lsp",
 			cmd = { os.getenv("HOME") .. "/.asdf/shims/ruby-lsp" },
 			root_dir = function(bufnr)
 				return vim.fs.root(bufnr, { ".git", "Gemfile", ".tool-versions" })
@@ -288,9 +289,11 @@ return {
 			filetypes = { "ruby", "eruby" },
 		}
 
-		-- Attach ruby-lsp to each Ruby buffer
-		-- By starting ruby-lsp from a FileType autocmd, Neovim is already in the project
-		-- directory when ruby-lsp starts, allowing asdf to detect .tool-versions
+		-- Register the config for manual :LspStart commands and :LspInfo display
+		vim.lsp.config.ruby_lsp = ruby_lsp_config
+
+		-- Attach ruby-lsp to each Ruby buffer when entering them
+		-- This ensures ruby-lsp attaches regardless of which file type is opened first
 		local function ensure_ruby_lsp_attached(bufnr)
 			-- Check if buffer is valid before proceeding
 			if not vim.api.nvim_buf_is_valid(bufnr) then
@@ -306,14 +309,9 @@ return {
 			-- Check if ruby_lsp is already attached to this specific buffer
 			local clients = vim.lsp.get_clients({ bufnr = bufnr, name = "ruby_lsp" })
 			if #clients == 0 then
-				-- Start ruby_lsp for this specific buffer using vim.lsp.start
-				vim.lsp.start({
-					name = "ruby_lsp",
-					cmd = { os.getenv("HOME") .. "/.asdf/shims/ruby-lsp" },
-					root_dir = vim.fs.root(bufnr, { ".git", "Gemfile", ".tool-versions" }),
-					capabilities = capabilities,
-					filetypes = { "ruby", "eruby" },
-				}, { bufnr = bufnr })
+				-- Start ruby_lsp for this specific buffer
+				-- We use vim.lsp.start() directly to ensure proper buffer attachment
+				vim.lsp.start(ruby_lsp_config, { bufnr = bufnr })
 			end
 		end
 
