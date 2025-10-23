@@ -157,6 +157,25 @@ return {
 						vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
 					end, "[T]oggle Inlay [H]ints")
 				end
+
+				-- Check for pyrightconfig.json when pyright attaches
+				if client and client.name == "pyright" then
+					local root_dir = client.config.root_dir
+					if root_dir then
+						local config_file = root_dir .. "/pyrightconfig.json"
+						if vim.fn.filereadable(config_file) == 0 then
+							vim.notify(
+								"pyrightconfig.json not found in project root!\n\n"
+									.. "Pyright needs this file to resolve imports from your virtualenv.\n"
+									.. "For Poetry projects, create:\n"
+									.. '  {"venvPath": ".", "venv": ".venv"}\n\n'
+									.. "Find venv path with: poetry env info --path",
+								vim.log.levels.WARN,
+								{ title = "Pyright Configuration" }
+							)
+						end
+					end
+				end
 			end,
 		})
 
@@ -208,10 +227,25 @@ return {
 		local servers = {
 			bashls = {},
 			marksman = {},
+			terraformls = {},
 			jsonls = {},
 			-- clangd = {},
 			-- gopls = {},
-			-- pyright = {},
+			-- NOTE: Pyright requires pyrightconfig.json in your project root to configure the venv.
+			-- For Poetry projects, create: {"venvPath": ".", "venv": ".venv"}
+			-- (Find venv path with: poetry env info --path)
+			-- Python LSP:
+			pyright = {
+				settings = {
+					python = {
+						analysis = {
+							autoSearchPaths = true,
+							diagnosticMode = "workspace",
+							useLibraryCodeForTypes = true,
+						},
+					},
+				},
+			},
 			-- rust_analyzer = {},
 			-- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
 			--
@@ -236,10 +270,9 @@ return {
 				--   },
 				-- },
 			},
-			-- ruby_lsp is managed by the ruby-lsp.nvim plugin instead
-			-- rubocop = {
-			--   cmd = { os.getenv("HOME") .. "/.asdf/shims/rubocop --lsp" },
-			-- },
+			-- NOTE: ruby-lsp is not managed by Mason because we need to use the
+			-- working directory's ruby version (e.g. managed by an ASDF shim
+			-- or similar), see below.
 		}
 
 		-- Ensure the servers and tools above are installed
@@ -277,6 +310,49 @@ return {
 			},
 		})
 
+		-- Generalized LSP attachment function
+		-- This ensures LSPs attach correctly when navigating via Oil, FZF, or other navigation methods
+		-- that may not trigger the standard LSP attachment events reliably.
+		local function ensure_lsp_attached(bufnr)
+			-- Check if buffer is valid before proceeding
+			if not vim.api.nvim_buf_is_valid(bufnr) then
+				return
+			end
+
+			local filetype = vim.api.nvim_get_option_value("filetype", { buf = bufnr })
+
+			-- Check each configured server to see if it should attach to this filetype
+			for server_name, server_config in pairs(servers) do
+				-- Get the filetypes this server should handle
+				-- First check if filetypes are explicitly configured
+				local server_filetypes = server_config.filetypes
+
+				-- If not explicitly configured, get the default filetypes from lspconfig
+				if not server_filetypes then
+					local ok, lspconfig_server = pcall(function()
+						return require("lspconfig.configs")[server_name]
+					end)
+					if ok and lspconfig_server and lspconfig_server.default_config then
+						server_filetypes = lspconfig_server.default_config.filetypes
+					end
+				end
+
+				-- Check if this server should attach to the current filetype
+				if server_filetypes and vim.tbl_contains(server_filetypes, filetype) then
+					-- Check if this LSP is already attached to this buffer
+					local clients = vim.lsp.get_clients({ bufnr = bufnr, name = server_name })
+					if #clients == 0 then
+						-- Try to start the LSP for this buffer
+						-- We rely on the configs already set up by mason-lspconfig
+						local config_name = server_name
+						if vim.lsp.config[config_name] then
+							vim.lsp.start(vim.lsp.config[config_name], { bufnr = bufnr })
+						end
+					end
+				end
+			end
+		end
+
 		-- Configure ruby-lsp separately to ensure asdf picks up the correct Ruby version
 		-- IMPORTANT: Use asdf shim explicitly to avoid Mason's ruby-lsp installation
 		local ruby_lsp_config = {
@@ -293,33 +369,30 @@ return {
 		vim.lsp.config.ruby_lsp = ruby_lsp_config
 
 		-- Attach ruby-lsp to each Ruby buffer when entering them
-		-- This ensures ruby-lsp attaches regardless of which file type is opened first
 		local function ensure_ruby_lsp_attached(bufnr)
-			-- Check if buffer is valid before proceeding
 			if not vim.api.nvim_buf_is_valid(bufnr) then
 				return
 			end
 
-			-- Only proceed if this is a Ruby buffer
 			local filetype = vim.api.nvim_get_option_value("filetype", { buf = bufnr })
 			if filetype ~= "ruby" and filetype ~= "eruby" then
 				return
 			end
 
-			-- Check if ruby_lsp is already attached to this specific buffer
 			local clients = vim.lsp.get_clients({ bufnr = bufnr, name = "ruby_lsp" })
 			if #clients == 0 then
-				-- Start ruby_lsp for this specific buffer
-				-- We use vim.lsp.start() directly to ensure proper buffer attachment
 				vim.lsp.start(ruby_lsp_config, { bufnr = bufnr })
 			end
 		end
 
-		-- Handle multiple buffer events to ensure LSP attaches when navigating via FZF Lua or other means
+		-- Handle multiple buffer events to ensure LSP attaches when navigating via Oil, FZF, or other means
 		-- We schedule the check to ensure the buffer and filetype are fully loaded
 		vim.api.nvim_create_autocmd({ "FileType", "BufEnter", "BufWinEnter", "BufReadPost" }, {
 			callback = function(event)
 				vim.schedule(function()
+					-- First try the generalized approach for all Mason-managed servers
+					ensure_lsp_attached(event.buf)
+					-- Then ensure ruby_lsp (which has custom config) is attached
 					ensure_ruby_lsp_attached(event.buf)
 				end)
 			end,
