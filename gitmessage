@@ -2,12 +2,12 @@
 
 # AI Stats:
 #
-# AI_MODEL: gpt-4o
-# AI_EDITOR: vscode-agent
-# AI_MULTIPLE: 2
+# AI_MODEL: sonnet-4.5
+# AI_EDITOR: claude-code
+# AI_MULTIPLE: 2.5
 # AI_QOL: 3
-# AI_TASK_COMPLEXITY: 2
-# AI_NOTES: Optional Comment
+# AI_TASK_COMPLEXITY: 3
+# AI_NOTES: N/A
 
 # -------------------------------------------------------------------- #
 # AI Stat Definitions:

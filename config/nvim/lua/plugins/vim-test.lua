@@ -12,7 +12,7 @@ return {
 			{ silent = true, desc = "Test spec nearest the cursor" },
 		},
 		{
-			"<leader>l",
+			"<leader>L",
 			"<CMD>TestLast<CR>",
 			{ silent = true, desc = "Run the most recent spec" },
 		},
@@ -29,7 +29,8 @@ return {
 	},
 	init = function()
 		vim.cmd([[
-			let test#strategy = "neovim"
+			"let test#strategy = "neovim"
+			let test#strategy = "basic"
 			let test#ruby#rspec#options = {
 				\ 'file':    '--format documentation',
 				\ 'suite':   '--fail-fast',

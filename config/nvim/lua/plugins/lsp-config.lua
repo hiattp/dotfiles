@@ -181,6 +181,20 @@ return {
 
 		-- Diagnostic Config
 		-- See :help vim.diagnostic.Opts
+		local virtual_text_config = {
+			source = "if_many",
+			spacing = 2,
+			format = function(diagnostic)
+				local diagnostic_message = {
+					[vim.diagnostic.severity.ERROR] = diagnostic.message,
+					[vim.diagnostic.severity.WARN] = diagnostic.message,
+					[vim.diagnostic.severity.INFO] = diagnostic.message,
+					[vim.diagnostic.severity.HINT] = diagnostic.message,
+				}
+				return diagnostic_message[diagnostic.severity]
+			end,
+		}
+
 		vim.diagnostic.config({
 			severity_sort = true,
 			float = { border = "rounded", source = "if_many" },
@@ -193,20 +207,43 @@ return {
 					[vim.diagnostic.severity.HINT] = "󰌶 ",
 				},
 			},
-			virtual_text = {
-				source = "if_many",
-				spacing = 2,
-				format = function(diagnostic)
-					local diagnostic_message = {
-						[vim.diagnostic.severity.ERROR] = diagnostic.message,
-						[vim.diagnostic.severity.WARN] = diagnostic.message,
-						[vim.diagnostic.severity.INFO] = diagnostic.message,
-						[vim.diagnostic.severity.HINT] = diagnostic.message,
-					}
-					return diagnostic_message[diagnostic.severity]
-				end,
-			},
+			virtual_text = virtual_text_config,
+			update_in_insert = false, -- Don't update diagnostics while typing in insert mode
 		})
+
+		-- Hide diagnostic virtual text in insert mode to prevent interruptions
+		local diagnostic_insert_group = vim.api.nvim_create_augroup("diagnostic-insert-mode", { clear = true })
+		local in_insert_mode = false
+
+		vim.api.nvim_create_autocmd("InsertEnter", {
+			group = diagnostic_insert_group,
+			callback = function()
+				in_insert_mode = true
+				vim.diagnostic.config({ virtual_text = false })
+			end,
+		})
+		vim.api.nvim_create_autocmd("InsertLeave", {
+			group = diagnostic_insert_group,
+			callback = function()
+				in_insert_mode = false
+				-- Clear stale diagnostics first
+				vim.diagnostic.reset()
+				-- Re-enable virtual text after a short delay to get fresh diagnostics
+				vim.defer_fn(function()
+					vim.diagnostic.config({ virtual_text = virtual_text_config })
+				end, 500) -- 500ms delay to allow LSP to compute fresh diagnostics
+			end,
+		})
+
+		-- Suppress LSP error notifications during insert mode
+		local original_notify = vim.notify
+		vim.notify = function(msg, level, opts)
+			-- Suppress LSP diagnostic errors in insert mode
+			if in_insert_mode and type(msg) == "string" and msg:match("LSP%[.*%].*diagnostics") then
+				return
+			end
+			original_notify(msg, level, opts)
+		end
 
 		-- LSP servers and clients are able to communicate to each other what features they support.
 		--  By default, Neovim doesn't support everything that is in the LSP specification.
@@ -310,48 +347,10 @@ return {
 			},
 		})
 
-		-- Generalized LSP attachment function
-		-- This ensures LSPs attach correctly when navigating via Oil, FZF, or other navigation methods
-		-- that may not trigger the standard LSP attachment events reliably.
-		local function ensure_lsp_attached(bufnr)
-			-- Check if buffer is valid before proceeding
-			if not vim.api.nvim_buf_is_valid(bufnr) then
-				return
-			end
-
-			local filetype = vim.api.nvim_get_option_value("filetype", { buf = bufnr })
-
-			-- Check each configured server to see if it should attach to this filetype
-			for server_name, server_config in pairs(servers) do
-				-- Get the filetypes this server should handle
-				-- First check if filetypes are explicitly configured
-				local server_filetypes = server_config.filetypes
-
-				-- If not explicitly configured, get the default filetypes from lspconfig
-				if not server_filetypes then
-					local ok, lspconfig_server = pcall(function()
-						return require("lspconfig.configs")[server_name]
-					end)
-					if ok and lspconfig_server and lspconfig_server.default_config then
-						server_filetypes = lspconfig_server.default_config.filetypes
-					end
-				end
-
-				-- Check if this server should attach to the current filetype
-				if server_filetypes and vim.tbl_contains(server_filetypes, filetype) then
-					-- Check if this LSP is already attached to this buffer
-					local clients = vim.lsp.get_clients({ bufnr = bufnr, name = server_name })
-					if #clients == 0 then
-						-- Try to start the LSP for this buffer
-						-- We rely on the configs already set up by mason-lspconfig
-						local config_name = server_name
-						if vim.lsp.config[config_name] then
-							vim.lsp.start(vim.lsp.config[config_name], { bufnr = bufnr })
-						end
-					end
-				end
-			end
-		end
+		-- NOTE: Mason-lspconfig handlers automatically attach LSP servers to buffers.
+		-- The ensure_lsp_attached function below is NOT needed for Mason-managed servers.
+		-- We only need custom attachment logic for servers with special setup (like ruby_lsp).
+		-- Keeping this function but not calling it for Mason-managed servers to avoid duplicate attachments.
 
 		-- Configure ruby-lsp separately to ensure asdf picks up the correct Ruby version
 		-- IMPORTANT: Use asdf shim explicitly to avoid Mason's ruby-lsp installation
@@ -363,6 +362,10 @@ return {
 			end,
 			capabilities = capabilities,
 			filetypes = { "ruby", "eruby" },
+			init_options = {
+				-- Disable RuboCop diagnostics to prevent interruptions
+				diagnostics = false,
+			},
 		}
 
 		-- Register the config for manual :LspStart commands and :LspInfo display
@@ -385,14 +388,27 @@ return {
 			end
 		end
 
-		-- Handle multiple buffer events to ensure LSP attaches when navigating via Oil, FZF, or other means
+		-- Handle multiple buffer events to ensure ruby_lsp attaches when navigating via Oil, FZF, or other means
+		-- Mason-managed servers attach automatically via mason-lspconfig handlers
 		-- We schedule the check to ensure the buffer and filetype are fully loaded
-		vim.api.nvim_create_autocmd({ "FileType", "BufEnter", "BufWinEnter", "BufReadPost" }, {
+		-- Events covered:
+		--   - FileType: when filetype is set/detected
+		--   - BufEnter: when entering any buffer
+		--   - BufWinEnter: when buffer is displayed in a window
+		--   - BufReadPost: after reading an existing file into a buffer
+		--   - BufNewFile: when creating a new file
+		--   - BufWritePost: after writing a buffer (catches filetype detection on save)
+		vim.api.nvim_create_autocmd({
+			"FileType",
+			"BufEnter",
+			"BufWinEnter",
+			"BufReadPost",
+			"BufNewFile",
+			"BufWritePost",
+		}, {
 			callback = function(event)
 				vim.schedule(function()
-					-- First try the generalized approach for all Mason-managed servers
-					ensure_lsp_attached(event.buf)
-					-- Then ensure ruby_lsp (which has custom config) is attached
+					-- Only need custom attachment for ruby_lsp (uses asdf shim)
 					ensure_ruby_lsp_attached(event.buf)
 				end)
 			end,

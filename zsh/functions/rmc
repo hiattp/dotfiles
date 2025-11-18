@@ -1,0 +1,8 @@
+# Remote Console
+# Asset Platform: Open a remote Rails console in a Kubernetes pod
+rmc() {
+  readonly shard=${1:?"The default shard must be specified."}
+  local podname=$(kgrp)
+  local remote_command="DEFAULT_SHARD=${shard} bundle exec rails c"
+  kubectl exec -it "$podname" --namespace verumex --container verumex  -- bash -c "$remote_command"
+}

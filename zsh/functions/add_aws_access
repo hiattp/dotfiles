@@ -1,0 +1,25 @@
+# Add AWS access for a user (console and CLI)
+# NOTE: Set username and password variables and run with `add_aws_access $AWS_USER $PASSWORD`
+# NOTE: AWS users should be created in terraform, not here.
+add_aws_access() {
+    readonly username=${1:?"The username must be specified."}
+    readonly password=${2:?"The password must be specified."}
+    # NOTE: AWS users should be created in terraform, not here.
+    # aws iam create-user --user-name $username
+    aws iam create-login-profile --user-name $username --password $password --no-password-reset-required
+
+    AWS_ACCOUNT_ALIAS=$(aws --output text iam list-account-aliases --query 'AccountAliases[0]')
+    print "Console access:"
+    print "Link:"
+    print "https://${AWS_ACCOUNT_ALIAS}.signin.aws.amazon.com/console/"
+    print "Username: $username"
+    print "Password:"
+    pwpush $password
+
+    print ""
+    print "CLI Access:"
+    creds=$(aws iam create-access-key --user-name $username | \
+      python3 -c "import sys, json; key = json.load(sys.stdin)['AccessKey']; print(f'Key: {key[\"AccessKeyId\"]}\nSecret: {key[\"SecretAccessKey\"]}')"
+    )
+    pwpush $creds
+}

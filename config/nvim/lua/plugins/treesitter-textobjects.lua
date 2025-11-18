@@ -17,6 +17,10 @@ return {
 						-- You can use the capture groups defined in textobjects.scm
 						["af"] = "@function.outer",
 						["if"] = "@function.inner",
+						["am"] = "@function.outer",
+						["im"] = "@function.inner",
+						["ar"] = "@block.outer",
+						["ir"] = "@block.inner",
 						["ac"] = "@class.outer",
 						["ao"] = "@comment.outer",
 						-- You can optionally set descriptions to the mappings (used in the desc parameter of
@@ -46,7 +50,10 @@ return {
 					-- * query_string: eg '@function.inner'
 					-- * selection_mode: eg 'v'
 					-- and should return true or false
-					include_surrounding_whitespace = true,
+					include_surrounding_whitespace = function(opts)
+						return false
+						-- return opts.query_string == "@function.outer"
+					end,
 				},
 				swap = {
 					enable = false,

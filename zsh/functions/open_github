@@ -1,0 +1,32 @@
+# Open the GitHub repository for the current directory in the browser
+# Usage: open_github [remote]
+# If no remote is specified, defaults to 'origin'
+open_github() {
+  # Check if we're in a git repository
+  if ! git rev-parse --git-dir > /dev/null 2>&1; then
+    echo "Error: Not in a git repository"
+    return 1
+  fi
+
+  # Get the remote URL (defaults to origin)
+  local remote="${1:-origin}"
+  local url=$(git remote get-url "$remote" 2>/dev/null)
+
+  if [ -z "$url" ]; then
+    echo "Error: No remote named '$remote' found"
+    return 1
+  fi
+
+  # Convert SSH URL to HTTPS if needed
+  # SSH format: git@github.com:user/repo.git
+  # HTTPS format: https://github.com/user/repo.git
+  if [[ "$url" =~ ^git@github\.com:(.+)$ ]]; then
+    url="https://github.com/${match[1]}"
+  fi
+
+  # Remove .git suffix if present
+  url="${url%.git}"
+
+  echo "Opening: $url"
+  open "$url"
+}

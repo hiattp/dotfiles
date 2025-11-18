@@ -1,0 +1,9 @@
+{
+  "cl": {
+    "prefix": "cl",
+    "body": [
+      "console.log($0);"
+    ],
+    "description": "Define a memoized Ruby method"
+  }
+}

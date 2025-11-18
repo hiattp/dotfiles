@@ -11,6 +11,7 @@ return {
 			typescript = { "prettierd", "prettier", stop_after_first = true },
 			ruby = { "rubocop" },
 			eruby = { "erb_lint" },
+			terraform = { "terraform_fmt" },
 		},
 		formatters = {
 			erb_lint = {
@@ -20,12 +21,12 @@ return {
 				args = { "exec", "erblint", "--autocorrect", "$FILENAME" },
 			},
 		},
-		format_on_save = {
-			pattern = { "*.lua" },
-			-- These options will be passed to conform.format()
-			timeout_ms = 500,
-			lsp_format = "fallback",
-		},
+		-- format_on_save = {
+		-- 	pattern = { "*.lua" },
+		-- 	-- These options will be passed to conform.format()
+		-- 	timeout_ms = 500,
+		-- 	lsp_format = "fallback",
+		-- },
 	},
 	keys = {
 		{

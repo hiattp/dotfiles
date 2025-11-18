@@ -48,6 +48,17 @@ vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 5
 
+-- Disable highlighting during search
+vim.opt.hlsearch = false
+
 -- Copy any yanked text to the clipboard
 vim.opt.clipboard = vim.opt.clipboard + { "unnamedplus" }
+
+-- Fix filetype detection for Terraform files
+-- Neovim detects .tf as filetype=tf, but parsers/LSPs expect filetype=terraform
+vim.filetype.add({
+	extension = {
+		tf = "terraform",
+	},
+})
 

@@ -1,0 +1,13 @@
+# Create a secure password link using pwpush.com that expires after 2 days or 3 views
+# Usage: pwpush "your-password-here"
+pwpush() {
+  readonly password=${1:?"The password must be specified."}
+
+  link=$(
+    curl -X POST --silent \
+    --data "password[payload]=$password&password[expire_after_days]=2&password[expire_after_views]=3" https://pwpush.com/p.json | \
+    python3 -c "import sys, json; print(f'https://pwpush.com/p/{json.load(sys.stdin)[\"url_token\"]}')"
+  )
+  print $link
+  echo $link | pbcopy
+}

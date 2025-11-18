@@ -12,15 +12,26 @@ vim.keymap.set("n", "<leader>q", "<CMD>q<CR>") -- Quit faster
 vim.keymap.set("n", "<leader>/", "<CMD>nohlsearch<CR>") -- Clear search highlight
 vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float) -- Open diagnostics in float
 vim.keymap.set("n", "yp", ":call setreg('+', expand('%:p'))<CR>", { silent = true }) -- Copy (yank) current file path to clipboard
-vim.keymap.set("n", "<leader>k", "kj") -- Move current line to end of line above
+vim.keymap.set("n", "<leader>k", "kJ") -- Move current line to end of line above
 vim.keymap.set("n", "Di", "ddO") -- Delete line and start editing at proper indent
 vim.keymap.set("n", "Wj", "<CMD>set paste<CR>m`o<Esc>``<CMD>set nopaste<CR>", { noremap = true, silent = true }) -- Add whitespace line below
 vim.keymap.set("n", "Wk", "<CMD>set paste<CR>m`O<Esc>``<CMD>set nopaste<CR>", { noremap = true, silent = true }) -- Add whitespace line above
 vim.keymap.set("n", "<C-S>", "<CMD>FzfLua grep_cword<CR>", { noremap = true }) -- Search current word
 vim.keymap.set("n", "j", "gj", { noremap = true }) -- Don't skip the second part of a broken line
 vim.keymap.set("n", "k", "gk", { noremap = true }) -- Don't skip the second part of a broken line
+vim.keymap.set("n", "p", function()
+	local line = vim.fn.getline(".")
+	if line:match("^%s+$") then
+		return '"_ddP=`]'
+	else
+		return "p=`]"
+	end
+end, { expr = true, desc = "Smart paste with auto-indent" })
 -- NOTES:
 -- Use : to repeat an "f" or "F" motion instead of ;
 
 -- -- Visual Mode -- --
 vim.keymap.set("v", "R", ":s/", { noremap = true }) -- Enter visual substitute faster
+
+-- -- Terminal Mode -- --
+vim.keymap.set('t', '<C-u>', [[<C-\><C-n><C-u>]], { noremap = true, silent = true })

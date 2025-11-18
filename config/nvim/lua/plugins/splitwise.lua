@@ -1,7 +1,7 @@
 return {
 	enabled = true,
 	'hiattp/splitwise.nvim',
-	dev = false,
+	dev = true,
 	opts = {
 		ignore_winfixwidth = true,
 	},

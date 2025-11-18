@@ -8,6 +8,20 @@
 		],
 		"description": "Define a memoized Ruby method"
 	},
+	"sel": {
+		"prefix": "sel",
+		"body": [
+			"select { |$1| $0 }"
+		],
+		"description": "Select statement"
+	},
+	"det": {
+		"prefix": "det",
+		"body": [
+			"detect { |$1| $0 }"
+		],
+		"description": "Detect statement"
+	},
 	"d": {
 		"prefix": "d",
 		"body": [
@@ -16,5 +30,38 @@
 			"end"
 		],
 		"description": "Define a Ruby method with parameters"
+	},
+	"bef": {
+		"prefix": "bef",
+		"body": [
+			"before do",
+			"  $0",
+			"end"
+		],
+		"description": "Before block for specs"
+	},
+	"scen": {
+		"prefix": "scen",
+		"body": [
+			"scenario '$1' do",
+			"  $0",
+			"end"
+		],
+		"description": "Before block for specs"
+	},
+	"expp": {
+		"prefix": "expp",
+		"body": [
+			"expect(page).to have_content $0"
+		],
+		"description": "Expect page to have content"
+	},
+	"fr": {
+		"prefix": "fr",
+		"body": [
+			"# frozen_string_literal: true",
+			""
+		],
+		"description": "Add frozen string literal declaration"
 	}
 }
