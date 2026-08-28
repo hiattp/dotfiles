@@ -1,5 +1,15 @@
 # Kubernetes Get Remote Pod
-# Asset Platform: Get a running Verumex pod name
+# Asset Platform: Get a ready Verumex pod name
 kgrp() {
-  kubectl get pods --field-selector=status.phase=Running --namespace verumex --selector=app.kubernetes.io/instance=verumex | grep Running | grep -m1 verumex | cut -d' ' -f1 | awk "{print $1;}"
+  kubectl get pods --no-headers --field-selector=status.phase=Running \
+    --namespace verumex --selector=app.kubernetes.io/instance=verumex |
+    awk '
+      $3 == "Running" {
+        split($2, readiness, "/")
+        if (readiness[1] > 0 && readiness[1] == readiness[2]) {
+          print $1
+          exit
+        }
+      }
+    '
 }
