@@ -1,8 +1,74 @@
 # Remote Console
-# Asset Platform: Open a remote Rails console in a Kubernetes pod
+# Asset Platform: Open a remote Rails console in a Kubernetes pod, or run a
+# non-interactive script against a shard via `rails runner`.
+#
+#   rmc ms                  # interactive console (original behavior)
+#   rmc ms -f script.rb     # run a local Ruby file against the ms shard
+#   rmc ms -e 'puts 1 + 1'  # run inline Ruby against the ms shard
+#   rmc ms -r 'task[arg]'   # run a Rake task against the ms shard
+#
+# Both non-interactive forms pipe the program in on stdin (`rails runner -`),
+# so no shell quoting or escaping of the Ruby source is required.
+#
+# Shard selection: `rails runner` does NOT honour DEFAULT_SHARD. The app applies
+# it in a `console do ... end` block in config/application.rb, which only runs
+# for `rails console`; a runner silently falls back to the default shard (ms).
+# So -f/-e prepend a one-line preamble that binds the shard the same way the
+# console does. Kept to a single line so backtrace line numbers stay usable.
+#
+# NOTE: -r (rake) has the same gap and is NOT fixed here -- a rake task gets the
+# env var but nothing applies it unless the task does so itself.
 rmc() {
-  readonly shard=${1:?"The default shard must be specified."}
-  local podname=$(kgrp)
-  local remote_command="DEFAULT_SHARD=${shard} bundle exec rails c"
-  kubectl exec -it "$podname" --namespace verumex --container verumex  -- bash -c "$remote_command"
+  local shard=${1:?"The default shard must be specified."}
+  shift
+
+  local podname
+  podname=$(kgrp)
+  if [[ -z "$podname" ]]; then
+    print -u2 "rmc: no running verumex pod found"
+    return 1
+  fi
+
+  local runner="DEFAULT_SHARD=${shard} bundle exec rails runner -"
+  local console="DEFAULT_SHARD=${shard} bundle exec rails c"
+
+  # Binds the shard for `rails runner`, mirroring config/application.rb's
+  # console block. Silently ignored if the shard name is not configured.
+  local preamble='if (__s = ENV["DEFAULT_SHARD"]&.to_sym) && ApplicationDatabases.shards.key?(__s) then Verumex::Current.shard = __s; ApplicationRecord.connecting_to(role: :writing, shard: __s) end'
+
+  case "$1" in
+    -f|--file)
+      local script=${2:?"rmc: -f requires a file path."}
+      if [[ ! -r "$script" ]]; then
+        print -u2 "rmc: cannot read $script"
+        return 1
+      fi
+      { print -r -- "$preamble"; cat "$script"; } \
+        | kubectl exec -i "$podname" --namespace verumex --container verumex \
+            -- bash -c "$runner"
+      ;;
+    -e|--eval)
+      local code=${2:?"rmc: -e requires a Ruby expression."}
+      { print -r -- "$preamble"; print -r -- "$code"; } \
+        | kubectl exec -i "$podname" --namespace verumex \
+            --container verumex -- bash -c "$runner"
+      ;;
+    -r|--rake)
+      shift
+      if (( $# == 0 )); then
+        print -u2 "rmc: -r requires a Rake task."
+        return 1
+      fi
+      kubectl exec "$podname" --namespace verumex --container verumex \
+        -- env "DEFAULT_SHARD=$shard" bundle exec rake "$@"
+      ;;
+    "")
+      kubectl exec -it "$podname" --namespace verumex --container verumex \
+        -- bash -c "$console"
+      ;;
+    *)
+      print -u2 "rmc: unknown option '$1' (expected -f FILE, -e CODE, or -r TASK)"
+      return 1
+      ;;
+  esac
 }
