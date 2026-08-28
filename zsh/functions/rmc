@@ -7,17 +7,15 @@
 #   rmc ms -e 'puts 1 + 1'  # run inline Ruby against the ms shard
 #   rmc ms -r 'task[arg]'   # run a Rake task against the ms shard
 #
-# Both non-interactive forms pipe the program in on stdin (`rails runner -`),
-# so no shell quoting or escaping of the Ruby source is required.
+# All non-interactive forms pipe a program in on stdin (`rails runner -`), so
+# no shell quoting or escaping of Ruby source is required. For -r, arguments
+# after the option retain Rake's normal CLI syntax (for example `task[arg]`).
 #
 # Shard selection: `rails runner` does NOT honour DEFAULT_SHARD. The app applies
 # it in a `console do ... end` block in config/application.rb, which only runs
 # for `rails console`; a runner silently falls back to the default shard (ms).
-# So -f/-e prepend a one-line preamble that binds the shard the same way the
-# console does. Kept to a single line so backtrace line numbers stay usable.
-#
-# NOTE: -r (rake) has the same gap and is NOT fixed here -- a rake task gets the
-# env var but nothing applies it unless the task does so itself.
+# So each runner mode prepends a one-line preamble that binds the shard the same
+# way the console does. Kept to a single line so backtrace lines stay usable.
 rmc() {
   local shard=${1:?"The default shard must be specified."}
   shift
@@ -59,8 +57,9 @@ rmc() {
         print -u2 "rmc: -r requires a Rake task."
         return 1
       fi
-      kubectl exec "$podname" --namespace verumex --container verumex \
-        -- env "DEFAULT_SHARD=$shard" bundle exec rake "$@"
+      { print -r -- "$preamble"; print -r -- 'require "rake"; Rake.application.run'; } \
+        | kubectl exec -i "$podname" --namespace verumex --container verumex \
+            -- env "DEFAULT_SHARD=$shard" bundle exec rails runner -- - "$@"
       ;;
     "")
       kubectl exec -it "$podname" --namespace verumex --container verumex \
