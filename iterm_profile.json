@@ -59,9 +59,9 @@
     "Blue Component" : 0.73333334922790527,
     "Red Component" : 0.73333334922790527
   },
-  "Working Directory" : "\/Users\/hiattp",
+  "Working Directory" : "",
   "Blinking Cursor" : false,
-  "Disable Window Resizing" : true,
+  "Disable Window Resizing" : false,
   "Sync Title" : false,
   "Prompt Before Closing 2" : false,
   "BM Growl" : true,
@@ -275,7 +275,7 @@
   "Close Sessions On End" : true,
   "Terminal Type" : "xterm-256color",
   "Visual Bell" : true,
-  "Flashing Bell" : false,
+  "Flashing Bell" : true,
   "Silence Bell" : false,
   "Ansi 14 Color" : {
     "Green Component" : 1,
@@ -322,12 +322,53 @@
     "Blue Component" : 0,
     "Red Component" : 0.73333334922790527
   },
-  "Normal Font" : "Monaco 19",
+  "Normal Font" : "MesloLGMNFM-Regular 16",
   "Custom Directory" : "Recycle",
   "Right Option Key Sends" : 0,
   "Ansi 6 Color" : {
     "Green Component" : 0.73333334922790527,
     "Blue Component" : 0.73333334922790527,
     "Red Component" : 0
-  }
+  },
+  "ASCII Ligatures" : false,
+  "Disable Window Resizing by Unfocused Sessions" : false,
+  "Send Idle Alert" : false,
+  "Send New Output Alert" : false,
+  "Triggers" : [
+    {
+      "action" : "iTermUserNotificationTrigger",
+      "contentregex" : "",
+      "disabled" : 0,
+      "matchType" : 0,
+      "name" : "",
+      "parameter" : "",
+      "partial" : false,
+      "regex" : ""
+    },
+    {
+      "action" : "iTermEnterWorkgroupTrigger",
+      "contentregex" : "",
+      "disabled" : false,
+      "eventParams" : {
+        "jobName" : "claude"
+      },
+      "matchType" : 113,
+      "parameter" : "builtin.claudeCode",
+      "partial" : false,
+      "regex" : ""
+    },
+    {
+      "action" : "iTermExitWorkgroupTrigger",
+      "contentregex" : "",
+      "disabled" : false,
+      "eventParams" : {
+        "jobName" : "claude",
+        "leaderOnly" : true
+      },
+      "matchType" : 114,
+      "parameter" : "",
+      "partial" : false,
+      "regex" : ""
+    }
+  ]
 }

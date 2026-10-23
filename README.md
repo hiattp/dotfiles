@@ -77,7 +77,7 @@ The Lua configuration lives in `config/nvim`. Start `nvim` after installation; l
 
 The Claude Code and Splitwise plugins use local checkouts at `~/repos/claude-code.nvim` and `~/repos/splitwise.nvim` when those directories exist; otherwise lazy.nvim fetches them from GitHub. The companion's migration notes preserve local Claude Code changes from the previous machine. Copilot's configuration is retained but disabled.
 
-Install MesloLG Nerd Font and select it in iTerm2. Ruby language support expects `ruby-lsp` in the active asdf Ruby environment (`gem install ruby-lsp`). Project formatters such as RuboCop, erb_lint, and Prettier should be installed with each project's dependencies. The old Vim/MacVim configuration and Python-provider instructions have been retired; Vimscript plugins used by Neovim are retained.
+The laptop setup installs MesloLG Nerd Font; the saved iTerm2 profile selects it at 16 pt. Ruby language support expects `ruby-lsp` in the active asdf Ruby environment (`gem install ruby-lsp`). Project formatters such as RuboCop, erb_lint, and Prettier should be installed with each project's dependencies. The old Vim/MacVim configuration and Python-provider instructions have been retired; Vimscript plugins used by Neovim are retained.
 
 ## Kerberos
 
@@ -132,7 +132,13 @@ The laptop setup installs [Playwright's browser CLI for coding agents](https://p
 
 For a shared Claude Code skill across projects, optionally run `playwright-cli install --skills -g`. The CLI also works through its own help and commands without installing that skill.
 
-Import `iterm_profile.json` in iTerm2. Other application preferences and authentication should be reviewed on the new machine.
+### iTerm2
+
+`iterm_profile.json` contains the current `hiattp` profile: colors, MesloLG Nerd Font Mono at 16 pt, keyboard mappings, triggers, and terminal behavior. `rcup` makes this file available but does not activate it in iTerm2.
+
+For the profile alone, open **iTerm2 → Settings → Profiles → Other Actions → Import JSON Profiles**, choose `~/.hiattp-dotfiles/iterm_profile.json`, then select `hiattp` and **Other Actions → Set as Default**. Open a new window to use it. If an older `hiattp` profile is already present, back it up before replacing it.
+
+The private companion also contains reviewed global preferences and selects `hiattp` as default. Follow its README's **iTerm2 settings** instructions to use [iTerm2's custom settings folder](https://iterm2.com/3.5/documentation-preferences-general.html#settings); this replaces the separate profile import. Pulling the repo or running `rcup` alone does not enable that folder. Other application preferences and authentication should be reviewed on the new machine.
 
 ## Karabiner-Elements
 
