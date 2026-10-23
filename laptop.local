@@ -82,8 +82,6 @@ cask "dropbox"
 cask "1password"
 cask "karabiner-elements"
 cask "openvpn-connect"
-cask "microsoft-office"
-cask "microsoft-teams"
 cask "slack"
 cask "discord"
 cask "docker-desktop"
@@ -94,8 +92,6 @@ cask "visual-studio-code"
 cask "postman"
 cask "raycast"
 cask "lens"
-cask "avast-security"
-cask "obsidian"
 EOF
 
 # Claude Code native installer; Codex is installed by Homebrew above.
