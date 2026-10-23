@@ -4,17 +4,20 @@ Personal macOS configuration layered over [thoughtbot/dotfiles](https://github.c
 
 ## Install on a new Mac
 
-Install Homebrew, Git, and rcm, then clone the public configuration and thoughtbot defaults:
+Complete macOS updates and your required work-device enrollment first. Install Apple's Command Line Tools (`xcode-select --install`), then install [Homebrew using its official instructions](https://brew.sh). Run this setup as your regular user, rather than running the whole script with `sudo`.
 
 ```sh
+brew install git gh rcm
 git clone https://github.com/thoughtbot/dotfiles.git ~/.thoughtbot-dotfiles
+git -C ~/.thoughtbot-dotfiles checkout --detach 939a27005b2dd4ac1556e104fc91122f3aea0a6c
 git clone https://github.com/hiattp/dotfiles.git ~/.hiattp-dotfiles
 ```
 
-For a work machine, authenticate GitHub and also clone the optional private companion:
+The thoughtbot defaults are pinned to the snapshot checked with this setup. Review upstream changes before choosing a newer commit. For a work machine, authenticate GitHub over HTTPS and clone the private companion before installing its SSH settings. This avoids requiring your SSH keys just to obtain the private configuration:
 
 ```sh
-git clone git@github.com:hiattp/dotfiles-private.git ~/.hiattp-dotfiles-private
+gh auth login --hostname github.com --git-protocol https --web
+git clone https://github.com/hiattp/dotfiles-private.git ~/.hiattp-dotfiles-private
 ```
 
 Preview and install the symlinks:
@@ -24,17 +27,32 @@ env RCRC="$HOME/.hiattp-dotfiles/rcrc" lsrc
 env RCRC="$HOME/.hiattp-dotfiles/rcrc" rcup -K
 ```
 
-Use `rcup -K` to skip the thoughtbot post-install hook, which still tries to install and update Vim plugins. Review any existing-file conflicts before replacing them. `rcrc` combines the private companion, public configuration, and thoughtbot defaults, in that order. Documentation, migration archives, tests, local Claude settings, optional tools, and legacy Vim configuration are excluded from installation. Executables in `bin` are linked into `~/bin`.
+Use `rcup -K` to skip the thoughtbot post-install hook, which still tries to install and update Vim plugins. Review existing-file conflicts before replacing them. `rcrc` combines the private companion, public configuration, and thoughtbot defaults, in that order. Documentation, migration archives, tests, local Claude settings, optional tools, legacy Vim configuration, and the old global runtime pins are excluded. Executables in `bin` are linked into `~/bin`.
 
-Use the [thoughtbot laptop script](https://github.com/thoughtbot/laptop) for the remaining machine setup. It sources `~/.laptop.local`, which is installed above. Review its base package list too: it may still install Vim independently of this configuration.
+The [thoughtbot laptop script](https://github.com/thoughtbot/laptop) runs `~/.laptop.local` for the remaining setup. Download the exact script reviewed on 2026-10-23 and verify its SHA-256 before running it. The subshell stops on download/checksum errors and preserves the installer's failure status while logging:
 
 ```sh
-curl --remote-name https://raw.githubusercontent.com/thoughtbot/laptop/master/mac
-less mac
-sh mac 2>&1 | tee ~/laptop.log
+(
+  set -e
+  set -o pipefail
+  setup_file="$HOME/laptop-mac-reviewed"
+  curl -fsSL https://raw.githubusercontent.com/thoughtbot/laptop/6723ed10d3be551004b8abd95815ef3fd844c56c/mac -o "$setup_file"
+  printf '%s  %s\n' 6099a557e8ff415da97690a3f7babb7cf94370206fb9cbacfbf2e2bab9bbc642 "$setup_file" | shasum -a 256 -c -
+  less "$setup_file"
+  # Detach a symlink left by an earlier version of these setup instructions.
+  # The old repository file is retained as a reference.
+  if [ -L "$HOME/.tool-versions" ] && [ "$HOME/.tool-versions" -ef "$HOME/.hiattp-dotfiles/tool-versions" ]; then
+    mv -i "$HOME/.tool-versions" "$HOME/.tool-versions.legacy-$(date +%Y%m%d%H%M%S)"
+  fi
+  bash "$setup_file" 2>&1 | tee "$HOME/laptop.log"
+)
 ```
 
-`laptop.local` is the maintained Homebrew install list. It includes Neovim, fzf, ripgrep, Git/GitHub CLI, Git LFS, rcm, asdf, Kerberos, cloud and Kubernetes tools, document utilities, and desktop applications. Codex is installed as a Homebrew cask, and Claude Code uses its native installer (`curl -fsSL https://claude.ai/install.sh | bash`). Optional work packages come from `~/.laptop.private` in the companion repository. Runtime versions remain in `tool-versions`; review those pins before installing on a new OS.
+See the [bootstrap review and preflight notes](optional/bootstrap-review.md) for the script's permissions, dependency chain, and known side effects. In particular, the base script also installs Vim, Heroku, PostgreSQL 18, and Redis, and starts the database services. Review those choices before executing it. The checksum pins this script; Homebrew packages, runtime installers, and Claude's native installer remain separate upstream dependencies.
+
+`laptop.local` is the maintained package list. It includes Neovim, fzf, ripgrep, Git/GitHub CLI, Git LFS, rcm, asdf, Kerberos, cloud and Kubernetes tools, document utilities, and desktop applications. Codex is a Homebrew cask and Claude Code uses its native installer. Optional work packages come from `~/.laptop.private` in the companion repository. Existing dotfile checkouts are reused without pulling changes during installation.
+
+New installs select current stable Ruby and Terraform through asdf, and Node's latest LTS release. Python, Go, Rust, and .NET use Homebrew's current stable packages. The checked-in `tool-versions` is historical reference only and is not installed or used to choose defaults. The selected asdf versions are recorded in the new machine's regular `~/.tool-versions`; individual projects can continue to pin their own versions. Read the private companion's migration checklist before retiring the old machine.
 
 ## Public and private settings
 

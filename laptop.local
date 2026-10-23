@@ -1,24 +1,32 @@
 #!/bin/bash
 
-git_clone_or_pull() {
+# This file is sourced by the reviewed thoughtbot bootstrap.
+set -e
+set -o pipefail
+
+ensure_git_checkout() {
   local repo_src=$1 repo_dir=$2
   if [ ! -d "$repo_dir/.git" ]; then
     git clone --recursive "$repo_src" "$repo_dir"
   else
-    git -C "$repo_dir" pull --ff-only && git -C "$repo_dir" submodule update --init --recursive
+    fancy_echo "Using existing checkout at %s (no automatic pull)" "$repo_dir"
   fi
 }
 
-brew tap azure/functions
-brew tap teamookla/speedtest
-
 brew bundle --file=- <<EOF
+tap "azure/functions"
+tap "teamookla/speedtest"
+tap "fluxcd/tap"
 brew "neovim"
 brew "git"
 brew "gh"
 brew "gnupg"
 brew "rcm"
 brew "asdf"
+brew "python"
+brew "go"
+brew "rust"
+brew "dotnet"
 brew "fzf"
 brew "coreutils"
 brew "shellcheck"
@@ -31,7 +39,7 @@ brew "tesseract"
 brew "watchman"
 brew "yarn"
 brew "pnpm"
-brew "1password-cli"
+cask "1password-cli"
 cask "codex"
 brew "ripgrep"
 brew "overmind"
@@ -43,29 +51,29 @@ brew "clusterctl"
 brew "helm"
 brew "kind"
 brew "step"
-brew "flux"
+brew "fluxcd/tap/flux", trusted: true
 brew "argocd"
 brew "pipx"
 brew "uv"
-brew "azure-cli"
-brew "azure-functions-core-tools@4"
+cask "azure-cli"
+brew "azure/functions/azure-functions-core-tools@4", trusted: true
 brew "watch"
 brew "jq"
 brew "yq"
 brew "eksctl"
 brew "certbot"
-brew "speedtest"
+brew "teamookla/speedtest/speedtest", trusted: true
 brew "cmctl"
 brew "iperf3"
 brew "cmake"
 brew "ninja"
 brew "dfu-util"
 brew "ccache"
-brew "sdl2"
+brew "sdl2-compat"
 brew "notation"
 brew "licensed"
 brew "git-lfs"
-cask "tailscale"
+cask "tailscale-app"
 cask "balenaetcher"
 cask "iterm2"
 cask "google-chrome"
@@ -86,7 +94,6 @@ cask "visual-studio-code"
 cask "postman"
 cask "raycast"
 cask "lens"
-cask "zap"
 cask "avast-security"
 cask "obsidian"
 EOF
@@ -94,19 +101,35 @@ EOF
 # Claude Code native installer; Codex is installed by Homebrew above.
 curl -fsSL https://claude.ai/install.sh | bash
 
-add_or_update_asdf_plugin "python"
-add_or_update_asdf_plugin "terraform"
-add_or_update_asdf_plugin "golang" "https://github.com/kennyp/asdf-golang.git"
-add_or_update_asdf_plugin "rust" "https://github.com/asdf-community/asdf-rust.git"
-add_or_update_asdf_plugin "dotnet-core" "https://github.com/emersonsoares/asdf-dotnet-core.git"
+# Use asdf for Ruby, Node, and Terraform. Other general-purpose runtimes above
+# follow Homebrew's current stable versions; project-specific pins stay local.
+add_or_update_asdf_plugin "ruby" "https://github.com/asdf-vm/asdf-ruby.git"
+add_or_update_asdf_plugin "nodejs" "https://github.com/asdf-vm/asdf-nodejs.git"
+add_or_update_asdf_plugin "terraform" "https://github.com/asdf-community/asdf-hashicorp.git"
+export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$HOME/.local/bin:$PATH"
 
-asdf install
+install_asdf_default() {
+  local plugin=$1 version=$2
+  if ! printf '%s\n' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+    printf 'Cannot select a stable %s version: %s\n' "$plugin" "$version" >&2
+    return 1
+  fi
+  asdf install "$plugin" "$version"
+  asdf set --home "$plugin" "$version"
+}
+
+install_asdf_default ruby "$(asdf latest ruby)"
+# Resolve a full release from Node's official index, rather than its Current line.
+node_lts=$(curl -fsSL https://nodejs.org/dist/index.json | jq -r '[.[] | select(.lts != false)][0].version | ltrimstr("v")')
+install_asdf_default nodejs "$node_lts"
+install_asdf_default terraform "$(asdf latest terraform)"
+asdf reshim
 
 fancy_echo "Cleaning up old Homebrew formulae ..."
 brew cleanup
 
-git_clone_or_pull "https://github.com/thoughtbot/dotfiles.git" "$HOME/.thoughtbot-dotfiles"
-git_clone_or_pull "https://github.com/hiattp/dotfiles.git" "$HOME/.hiattp-dotfiles"
+ensure_git_checkout "https://github.com/thoughtbot/dotfiles.git" "$HOME/.thoughtbot-dotfiles"
+ensure_git_checkout "https://github.com/hiattp/dotfiles.git" "$HOME/.hiattp-dotfiles"
 # rcrc may already be a symlink to this file on an existing machine.
 if [ ! "$HOME/.hiattp-dotfiles/rcrc" -ef "$HOME/.rcrc" ]; then
   cp "$HOME/.hiattp-dotfiles/rcrc" "$HOME/.rcrc"
