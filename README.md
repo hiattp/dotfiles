@@ -52,7 +52,7 @@ Git includes `~/.gitconfig.private` last, and Zsh loads the private shell files 
 
 ## Neovim
 
-The Lua configuration lives in `config/nvim`. Start `nvim` after installation; lazy.nvim installs plugins. Use `:Lazy restore` to restore the versions recorded in `lazy-lock.json`, then `:checkhealth` to inspect external dependencies. Updates are checked but no longer applied automatically at startup.
+The Lua configuration lives in `config/nvim`. Start `nvim` after installation; lazy.nvim installs plugins. Use `:Lazy restore` to restore the versions recorded in `lazy-lock.json`, then `:checkhealth` to inspect external dependencies. Plugin update checks run silently every 30 days, with startup update notifications disabled. Open `:Lazy` to inspect available updates and use `:Lazy update` when ready to apply them.
 
 The Claude Code and Splitwise plugins use local checkouts at `~/repos/claude-code.nvim` and `~/repos/splitwise.nvim` when those directories exist; otherwise lazy.nvim fetches them from GitHub. The companion's migration notes preserve local Claude Code changes from the previous machine. Copilot's configuration is retained but disabled.
 

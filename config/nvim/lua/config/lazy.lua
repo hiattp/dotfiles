@@ -33,8 +33,12 @@ require("lazy").setup({
 	-- Configure any other settings here. See the documentation for more details.
 	-- colorscheme that will be used when installing plugins.
 	install = { colorscheme = { "habamax" } },
-	-- automatically check for plugin updates
-	checker = { enabled = true },
+	-- Check monthly without repeating cached update notices at every startup.
+	checker = {
+		enabled = true,
+		frequency = 30 * 24 * 60 * 60,
+		notify = false,
+	},
 	rocks = { enabled = false },
 	dev = {
 		path = "~/repos",
