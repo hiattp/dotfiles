@@ -1,2 +1,6 @@
-EXCLUDES="README.md LICENSE Brewfile"
-DOTFILES_DIRS="$HOME/.hiattp-dotfiles"
+EXCLUDES="README* LICENSE Brewfile optional migration private tests .claude */.claude *vimrc* vim .github CODEOWNERS CODE_OF_CONDUCT.md SECURITY.md"
+DOTFILES_DIRS="$HOME/.hiattp-dotfiles $HOME/.thoughtbot-dotfiles"
+if [ -d "$HOME/.hiattp-dotfiles-private" ]; then
+  DOTFILES_DIRS="$HOME/.hiattp-dotfiles-private $DOTFILES_DIRS"
+fi
+UNDOTTED="bin"

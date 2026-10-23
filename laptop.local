@@ -1,15 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
 git_clone_or_pull() {
-  local REPOSRC=$1
-  local LOCALREPO=$2
-  local LOCALREPO_VC_DIR=$LOCALREPO/.git
-  if [[ ! -d "$LOCALREPO_VC_DIR" ]]; then
-    git clone --recursive $REPOSRC $LOCALREPO
+  local repo_src=$1 repo_dir=$2
+  if [ ! -d "$repo_dir/.git" ]; then
+    git clone --recursive "$repo_src" "$repo_dir"
   else
-    pushd $LOCALREPO
-    git pull $REPOSRC && git submodule update --init --recursive
-    popd
+    git -C "$repo_dir" pull --ff-only && git -C "$repo_dir" submodule update --init --recursive
   fi
 }
 
@@ -17,20 +13,37 @@ brew tap azure/functions
 brew tap teamookla/speedtest
 
 brew bundle --file=- <<EOF
-brew "macvim"
 brew "neovim"
+brew "git"
+brew "gh"
+brew "gnupg"
+brew "rcm"
+brew "asdf"
+brew "fzf"
+brew "coreutils"
+brew "shellcheck"
+brew "actionlint"
+brew "universal-ctags"
+brew "krb5" # Kerberos: kinit, klist, kdestroy (keg-only on macOS)
+brew "mkcert"
+brew "poppler"
+brew "tesseract"
+brew "watchman"
+brew "yarn"
+brew "pnpm"
+brew "1password-cli"
+cask "codex"
 brew "ripgrep"
 brew "overmind"
 brew "vips"
 brew "awscli"
 brew "sops"
-brew "kubectl"
+brew "kubernetes-cli"
 brew "clusterctl"
 brew "helm"
 brew "kind"
 brew "step"
-brew "fluxctl"
-brew "fluxcd/tap/flux"
+brew "flux"
 brew "argocd"
 brew "pipx"
 brew "uv"
@@ -51,6 +64,7 @@ brew "ccache"
 brew "sdl2"
 brew "notation"
 brew "licensed"
+brew "git-lfs"
 cask "tailscale"
 cask "balenaetcher"
 cask "iterm2"
@@ -64,7 +78,7 @@ cask "microsoft-office"
 cask "microsoft-teams"
 cask "slack"
 cask "discord"
-cask "docker"
+cask "docker-desktop"
 cask "spotify"
 cask "zoom"
 cask "parallels"
@@ -72,8 +86,9 @@ cask "visual-studio-code"
 cask "postman"
 cask "raycast"
 cask "lens"
-cask "owasp-zap"
+cask "zap"
 cask "avast-security"
+cask "obsidian"
 EOF
 
 add_or_update_asdf_plugin "python"
@@ -87,33 +102,48 @@ asdf install
 fancy_echo "Cleaning up old Homebrew formulae ..."
 brew cleanup
 
-git_clone_or_pull "https://github.com/thoughtbot/dotfiles.git" ".thoughtbot-dotfiles"
-git_clone_or_pull "https://github.com/hiattp/dotfiles.git" ".hiattp-dotfiles"
-cp ~/.hiattp-dotfiles/rcrc ~/.rcrc || :
+git_clone_or_pull "https://github.com/thoughtbot/dotfiles.git" "$HOME/.thoughtbot-dotfiles"
+git_clone_or_pull "https://github.com/hiattp/dotfiles.git" "$HOME/.hiattp-dotfiles"
+# rcrc may already be a symlink to this file on an existing machine.
+if [ ! "$HOME/.hiattp-dotfiles/rcrc" -ef "$HOME/.rcrc" ]; then
+  cp "$HOME/.hiattp-dotfiles/rcrc" "$HOME/.rcrc"
+fi
 
-curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python3 -
-
+mkdir -p "$HOME/.config/karabiner/assets/complex_modifications"
 curl \
   -fsS \
   -o ~/.config/karabiner/assets/complex_modifications/escape_multifunction.json \
   'https://gist.githubusercontent.com/hiattp/e4b2c8b04a6db4f531264ca759e0d2ab/raw/00d0bc6c75fd09074f37a6d06c7cc609bca03fd7/escape_multifunction.json'
+
+# Git LFS
+git lfs install
 
 #
 # Install Go-based packages/binaries:
 #
 
 # This is an interactive wrapper for jq:
-go get github.com/fiatjaf/jiq/cmd/jiq
+go install github.com/fiatjaf/jiq/cmd/jiq@latest
 
 # Install awsume (https://awsu.me/) to facilitate AWS IAM role adoption (and
 # other python-based CLI tools via pipx):
 pipx completions
 pipx install awsume --force
+pipx install poetry --force
 
 # If you need ctags (not necessary if using a language server):
 # gem_install_or_update "gem-ctags"
 
 if [ -r "$HOME/.rcrc" ]; then
   fancy_echo "Updating dotfiles ..."
-  rcup
+  rcup -K
+fi
+
+# Optional companion installs (clone the private repository before running setup).
+if [ -r "$HOME/.laptop.private" ]; then
+  # shellcheck source=/dev/null
+  . "$HOME/.laptop.private"
+elif [ -r "$HOME/.hiattp-dotfiles-private/laptop.private" ]; then
+  # shellcheck source=/dev/null
+  . "$HOME/.hiattp-dotfiles-private/laptop.private"
 fi

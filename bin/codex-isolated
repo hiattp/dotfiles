@@ -1,0 +1,26 @@
+#!/bin/zsh
+emulate -LR zsh
+setopt errexit nounset pipefail
+
+local_limit=${CODEX_ISOLATED_NOFILE_LIMIT:-1024}
+if [[ "$local_limit" != <-> ]] || (( local_limit <= 0 )); then
+  print -ru2 -- "codex-isolated: CODEX_ISOLATED_NOFILE_LIMIT must be a positive integer"
+  exit 2
+fi
+codex_bin=${commands[codex]:-}
+if [[ -z "$codex_bin" ]]; then
+  print -ru2 -- "codex-isolated: codex was not found on PATH"
+  exit 127
+fi
+current_limit=$(ulimit -S -n)
+if [[ "$current_limit" != unlimited ]] && (( current_limit < local_limit )); then
+  ulimit -S -n "$local_limit" || exit $?
+fi
+
+# Register if available; a monitoring failure must not prevent a session.
+monitor="${0:A:h}/codex-resource-monitor"
+current_limit=$(ulimit -S -n)
+if [[ -x "$monitor" && "$current_limit" == <-> ]]; then
+  "$monitor" --register-limit "$$" "$current_limit" || true
+fi
+exec "$codex_bin" --no-daemon "$@"

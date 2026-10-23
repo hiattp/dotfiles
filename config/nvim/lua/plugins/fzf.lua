@@ -1,5 +1,3 @@
--- NOTE: In a future install, probably need to install fzf via homebrew.
--- See https://github.com/junegunn/fzf?tab=readme-ov-file#using-homebrew
 return {
 	"ibhagwan/fzf-lua",
 	-- optional for icon support

@@ -1,0 +1,552 @@
+#!/bin/zsh
+
+# Monitor shared and embedded Codex runtimes for resource pressure on macOS.
+# This script is intentionally observational: it never kills or restarts work.
+
+emulate -LR zsh
+setopt errexit nounset pipefail
+
+readonly PROGRAM_NAME="codex-resource-monitor"
+readonly CODEX_HOME_DIR="${CODEX_HOME:-$HOME/.codex}"
+readonly DAEMON_PID_FILE="$CODEX_HOME_DIR/app-server-daemon/daemon.pid"
+readonly CACHE_ROOT="${XDG_CACHE_HOME:-$HOME/Library/Caches}/$PROGRAM_NAME"
+readonly STATE_DIR="$CACHE_ROOT/state"
+readonly LIMIT_DIR="$CACHE_ROOT/limits"
+
+# Absolute FD thresholds intentionally remain useful after raising RLIMIT_NOFILE:
+# a Codex process with hundreds of descriptors is usually retaining tool/MCP
+# generations and should be inspected before the leak becomes memory pressure.
+readonly WARN_FDS_ABSOLUTE=${CODEX_MONITOR_WARN_FDS:-180}
+readonly CRITICAL_FDS_ABSOLUTE=${CODEX_MONITOR_CRITICAL_FDS:-220}
+readonly WARN_FD_PERCENT=${CODEX_MONITOR_WARN_FD_PERCENT:-70}
+readonly CRITICAL_FD_PERCENT=${CODEX_MONITOR_CRITICAL_FD_PERCENT:-85}
+readonly WARN_DESCENDANTS=${CODEX_MONITOR_WARN_DESCENDANTS:-75}
+readonly CRITICAL_DESCENDANTS=${CODEX_MONITOR_CRITICAL_DESCENDANTS:-120}
+readonly WARN_TREE_RSS_MB=${CODEX_MONITOR_WARN_TREE_RSS_MB:-4096}
+readonly CRITICAL_TREE_RSS_MB=${CODEX_MONITOR_CRITICAL_TREE_RSS_MB:-8192}
+readonly WARN_GLOBAL_PROCESSES=${CODEX_MONITOR_WARN_GLOBAL_PROCESSES:-100}
+readonly CRITICAL_GLOBAL_PROCESSES=${CODEX_MONITOR_CRITICAL_GLOBAL_PROCESSES:-160}
+readonly WARNING_REPEAT_SECONDS=${CODEX_MONITOR_WARNING_REPEAT_SECONDS:-3600}
+readonly CRITICAL_REPEAT_SECONDS=${CODEX_MONITOR_CRITICAL_REPEAT_SECONDS:-900}
+
+typeset -g CURRENT_FDS=0
+typeset -g CURRENT_PIPES=0
+typeset -g CURRENT_DESCENDANTS=0
+typeset -g CURRENT_TREE_RSS_KB=0
+typeset -g CURRENT_LIMIT=256
+typeset -g CURRENT_LEVEL="normal"
+typeset -g CURRENT_REASON=""
+
+usage() {
+  cat <<'EOF'
+Usage:
+  codex-resource-monitor --check
+  codex-resource-monitor --status
+  codex-resource-monitor --test-notification
+  codex-resource-monitor --register-limit PID LIMIT
+  codex-resource-monitor --run-isolated [CODEX_ARGS...]
+  codex-resource-monitor --self-test
+
+Commands:
+  --check              Check all Codex runtimes and notify on pressure changes.
+  --status             Print current shared, isolated, and aggregate usage.
+  --test-notification  Send a macOS notification without changing monitor state.
+  --register-limit     Record a known per-process open-file limit for a PID.
+  --run-isolated       Run `codex --no-daemon` with a 1024 soft FD limit and
+                       register that exact limit for monitoring.
+  --self-test          Validate threshold calculations without notifications.
+EOF
+}
+
+is_positive_integer() {
+  [[ "$1" == <-> && "$1" -gt 0 ]]
+}
+
+ensure_runtime_dirs() {
+  /bin/mkdir -p "$STATE_DIR" "$LIMIT_DIR"
+  /bin/chmod 700 "$CACHE_ROOT" "$STATE_DIR" "$LIMIT_DIR" 2>/dev/null || true
+}
+
+launchd_soft_limit() {
+  local detected
+  detected=$(/bin/launchctl limit maxfiles 2>/dev/null \
+    | /usr/bin/awk 'NR == 1 && $2 ~ /^[0-9]+$/ { print $2; exit }')
+  if is_positive_integer "${detected:-}"; then
+    print -r -- "$detected"
+  else
+    print -r -- 256
+  fi
+}
+
+effective_threshold() {
+  local limit=$1
+  local percent=$2
+  local absolute=$3
+  local percentage_value=$(( limit * percent / 100 ))
+
+  if (( percentage_value < absolute )); then
+    print -r -- "$percentage_value"
+  else
+    print -r -- "$absolute"
+  fi
+}
+
+known_limit_for_pid() {
+  local pid=$1
+  local recorded_file="$LIMIT_DIR/$pid"
+  local recorded=""
+
+  if [[ -r "$recorded_file" ]]; then
+    IFS= read -r recorded < "$recorded_file" || true
+  fi
+  if is_positive_integer "$recorded"; then
+    print -r -- "$recorded"
+  else
+    launchd_soft_limit
+  fi
+}
+
+register_limit() {
+  local pid=$1
+  local limit=$2
+
+  is_positive_integer "$pid" || {
+    print -ru2 -- "$PROGRAM_NAME: PID must be a positive integer"
+    return 2
+  }
+  is_positive_integer "$limit" || {
+    print -ru2 -- "$PROGRAM_NAME: LIMIT must be a positive integer"
+    return 2
+  }
+
+  ensure_runtime_dirs
+  print -r -- "$limit" > "$LIMIT_DIR/$pid.tmp.$$"
+  /bin/mv -f "$LIMIT_DIR/$pid.tmp.$$" "$LIMIT_DIR/$pid"
+}
+
+daemon_pid() {
+  local pid=""
+  if [[ -r "$DAEMON_PID_FILE" ]]; then
+    pid=$(/usr/bin/plutil -extract pid raw "$DAEMON_PID_FILE" 2>/dev/null || true)
+  fi
+  if is_positive_integer "$pid" && /bin/kill -0 "$pid" 2>/dev/null; then
+    print -r -- "$pid"
+  fi
+}
+
+collect_candidates() {
+  local shared_pid="${1:-}"
+
+  if is_positive_integer "$shared_pid"; then
+    print -r -- "$shared_pid|shared-daemon"
+  fi
+
+  /bin/ps -ww -axo pid=,args= 2>/dev/null | /usr/bin/awk -v shared="$shared_pid" '
+    {
+      pid = $1
+      executable = $2
+      if (pid == shared) next
+      if (executable !~ /(^|\/)codex$/) next
+      if ($0 ~ / app-server daemon pid-update-loop([[:space:]]|$)/) next
+
+      label = ($0 ~ /(^|[[:space:]])--no-daemon([[:space:]]|$)/) \
+        ? "isolated-session" \
+        : "codex-session"
+      print pid "|" label
+    }
+  '
+}
+
+process_lsof_metrics() {
+  local pid=$1
+  local lsof_output
+
+  lsof_output=$(/usr/sbin/lsof -nP -a -p "$pid" 2>/dev/null || true)
+  if [[ -z "$lsof_output" ]]; then
+    CURRENT_FDS=0
+    CURRENT_PIPES=0
+    return
+  fi
+
+  CURRENT_FDS=$(print -r -- "$lsof_output" | /usr/bin/awk '
+    NR > 1 {
+      fd = $4
+      sub(/[rwu-]+$/, "", fd)
+      if (fd ~ /^[0-9]+$/) count++
+    }
+    END { print count + 0 }
+  ')
+  CURRENT_PIPES=$(print -r -- "$lsof_output" | /usr/bin/awk '
+    NR > 1 && $5 == "PIPE" { count++ }
+    END { print count + 0 }
+  ')
+}
+
+process_tree_metrics() {
+  local root_pid=$1
+  local metrics
+
+  metrics=$(/bin/ps -axo pid=,ppid=,rss= 2>/dev/null | /usr/bin/awk -v root="$root_pid" '
+    {
+      ids[count] = $1
+      parent[$1] = $2
+      rss[$1] = $3
+      count++
+    }
+    END {
+      selected[root] = 1
+      changed = 1
+      while (changed) {
+        changed = 0
+        for (i = 0; i < count; i++) {
+          pid = ids[i]
+          if (!selected[pid] && selected[parent[pid]]) {
+            selected[pid] = 1
+            changed = 1
+          }
+        }
+      }
+      for (pid in selected) {
+        if (!selected[pid]) continue
+        process_count++
+        total_rss += rss[pid]
+      }
+      printf "%d %d\n", process_count - 1, total_rss
+    }
+  ')
+
+  CURRENT_DESCENDANTS=${metrics%% *}
+  CURRENT_TREE_RSS_KB=${metrics##* }
+}
+
+classify_current_process() {
+  local warn_fd_threshold
+  local critical_fd_threshold
+  local tree_rss_mb=$(( (CURRENT_TREE_RSS_KB + 1023) / 1024 ))
+  local -a warning_reasons=()
+  local -a critical_reasons=()
+
+  warn_fd_threshold=$(effective_threshold "$CURRENT_LIMIT" "$WARN_FD_PERCENT" "$WARN_FDS_ABSOLUTE")
+  critical_fd_threshold=$(effective_threshold "$CURRENT_LIMIT" "$CRITICAL_FD_PERCENT" "$CRITICAL_FDS_ABSOLUTE")
+
+  if (( CURRENT_FDS >= critical_fd_threshold )); then
+    critical_reasons+=("$CURRENT_FDS FDs (critical $critical_fd_threshold; assumed limit $CURRENT_LIMIT)")
+  elif (( CURRENT_FDS >= warn_fd_threshold )); then
+    warning_reasons+=("$CURRENT_FDS FDs (warning $warn_fd_threshold; assumed limit $CURRENT_LIMIT)")
+  fi
+
+  if (( CURRENT_DESCENDANTS >= CRITICAL_DESCENDANTS )); then
+    critical_reasons+=("$CURRENT_DESCENDANTS descendants")
+  elif (( CURRENT_DESCENDANTS >= WARN_DESCENDANTS )); then
+    warning_reasons+=("$CURRENT_DESCENDANTS descendants")
+  fi
+
+  if (( tree_rss_mb >= CRITICAL_TREE_RSS_MB )); then
+    critical_reasons+=("${tree_rss_mb} MiB tree RSS")
+  elif (( tree_rss_mb >= WARN_TREE_RSS_MB )); then
+    warning_reasons+=("${tree_rss_mb} MiB tree RSS")
+  fi
+
+  if (( ${#critical_reasons} > 0 )); then
+    CURRENT_LEVEL="critical"
+    CURRENT_REASON="${(j:, :)critical_reasons}"
+  elif (( ${#warning_reasons} > 0 )); then
+    CURRENT_LEVEL="warning"
+    CURRENT_REASON="${(j:, :)warning_reasons}"
+  else
+    CURRENT_LEVEL="normal"
+    CURRENT_REASON=""
+  fi
+}
+
+inspect_process() {
+  local pid=$1
+
+  CURRENT_FDS=0
+  CURRENT_PIPES=0
+  CURRENT_DESCENDANTS=0
+  CURRENT_TREE_RSS_KB=0
+  CURRENT_LIMIT=$(known_limit_for_pid "$pid")
+  CURRENT_LEVEL="normal"
+  CURRENT_REASON=""
+
+  process_lsof_metrics "$pid"
+  process_tree_metrics "$pid"
+  classify_current_process
+}
+
+send_notification() {
+  local title=$1
+  local subtitle=$2
+  local message=$3
+  local sound=${4:-no}
+
+  /usr/bin/logger -t "$PROGRAM_NAME" -- "$title — $subtitle — $message" || true
+  /usr/bin/osascript - "$title" "$subtitle" "$message" "$sound" >/dev/null 2>&1 <<'APPLESCRIPT' || true
+on run argv
+  set notificationTitle to item 1 of argv
+  set notificationSubtitle to item 2 of argv
+  set notificationMessage to item 3 of argv
+  set useSound to item 4 of argv
+  if useSound is "yes" then
+    display notification notificationMessage with title notificationTitle subtitle notificationSubtitle sound name "Basso"
+  else
+    display notification notificationMessage with title notificationTitle subtitle notificationSubtitle
+  end if
+end run
+APPLESCRIPT
+}
+
+handle_state() {
+  local key=$1
+  local label=$2
+  local level=$3
+  local reason=$4
+  local state_file="$STATE_DIR/$key.state"
+  local previous_level="normal"
+  local last_alert=0
+  local now
+  local repeat_seconds
+  local should_alert=0
+
+  now=$(/bin/date +%s)
+  if [[ -r "$state_file" ]]; then
+    previous_level=$(/usr/bin/awk 'NR == 1 { print $1 }' "$state_file")
+    last_alert=$(/usr/bin/awk 'NR == 1 { print $2 + 0 }' "$state_file")
+  fi
+
+  if [[ "$level" == "normal" ]]; then
+    if [[ "$previous_level" != "normal" ]]; then
+      send_notification \
+        "Codex resources recovered" \
+        "$label" \
+        "Usage returned below the configured thresholds."
+    fi
+    /bin/rm -f -- "$state_file"
+    return
+  fi
+
+  if [[ "$level" == "critical" ]]; then
+    repeat_seconds=$CRITICAL_REPEAT_SECONDS
+  else
+    repeat_seconds=$WARNING_REPEAT_SECONDS
+  fi
+
+  if [[ "$previous_level" != "$level" ]] || (( now - last_alert >= repeat_seconds )); then
+    should_alert=1
+  fi
+
+  if (( should_alert )); then
+    if [[ "$level" == "critical" ]]; then
+      send_notification "Codex resource pressure" "$label" "$reason" yes
+    else
+      send_notification "Codex resource warning" "$label" "$reason"
+    fi
+    last_alert=$now
+  fi
+
+  print -r -- "$level $last_alert" > "$state_file.tmp.$$"
+  /bin/mv -f "$state_file.tmp.$$" "$state_file"
+}
+
+cleanup_stale_state() {
+  local state_file
+  local key
+
+  for state_file in "$STATE_DIR"/*.state(N); do
+    key=${state_file:t:r}
+    [[ "$key" == "global" ]] && continue
+    if ! is_positive_integer "$key" || ! /bin/kill -0 "$key" 2>/dev/null; then
+      /bin/rm -f -- "$state_file" "$LIMIT_DIR/$key"
+    fi
+  done
+
+  for state_file in "$LIMIT_DIR"/*(N); do
+    key=${state_file:t}
+    if ! is_positive_integer "$key" || ! /bin/kill -0 "$key" 2>/dev/null; then
+      /bin/rm -f -- "$state_file"
+    fi
+  done
+}
+
+global_thresholds() {
+  local memory_bytes
+  local memory_mb
+  local warn_memory_mb
+  local critical_memory_mb
+
+  memory_bytes=$(/usr/sbin/sysctl -n hw.memsize 2>/dev/null || print -r -- 0)
+  memory_mb=$(( memory_bytes / 1024 / 1024 ))
+  warn_memory_mb=$(( memory_mb * 20 / 100 ))
+  critical_memory_mb=$(( memory_mb * 35 / 100 ))
+
+  (( warn_memory_mb <= 0 || warn_memory_mb > 8192 )) && warn_memory_mb=8192
+  (( critical_memory_mb <= 0 || critical_memory_mb > 16384 )) && critical_memory_mb=16384
+
+  print -r -- "$warn_memory_mb $critical_memory_mb"
+}
+
+run_monitor() {
+  local mode=$1
+  local shared_pid
+  local row pid label
+  local tree_rss_mb
+  local total_tree_rss_kb=0
+  local total_processes=0
+  local root_count=0
+  local global_level="normal"
+  local global_reason=""
+  local memory_thresholds warn_global_memory_mb critical_global_memory_mb
+  local total_tree_rss_mb
+  local kernel_files kernel_maxfiles kernel_percent=0
+  local -a warning_reasons=()
+  local -a critical_reasons=()
+  local -A candidates=()
+
+  ensure_runtime_dirs
+  cleanup_stale_state
+  shared_pid=$(daemon_pid || true)
+
+  while IFS='|' read -r pid label; do
+    if is_positive_integer "$pid"; then
+      candidates[$pid]="$label"
+    fi
+  done < <(collect_candidates "$shared_pid")
+
+  if [[ "$mode" == "status" ]]; then
+    printf '%-7s %-18s %8s %8s %11s %11s %10s\n' \
+      "PID" "TYPE" "FDS" "PIPES" "DESCENDANTS" "TREE_RSS" "LEVEL"
+  fi
+
+  for pid in ${(on)${(k)candidates}}; do
+    if ! /bin/kill -0 "$pid" 2>/dev/null; then
+      continue
+    fi
+
+    label=${candidates[$pid]}
+    inspect_process "$pid"
+    tree_rss_mb=$(( (CURRENT_TREE_RSS_KB + 1023) / 1024 ))
+    total_tree_rss_kb=$(( total_tree_rss_kb + CURRENT_TREE_RSS_KB ))
+    total_processes=$(( total_processes + CURRENT_DESCENDANTS + 1 ))
+    root_count=$(( root_count + 1 ))
+
+    if [[ "$mode" == "status" ]]; then
+      printf '%-7s %-18s %4s/%-3s %8s %11s %8s MiB %10s\n' \
+        "$pid" "$label" "$CURRENT_FDS" "$CURRENT_LIMIT" "$CURRENT_PIPES" \
+        "$CURRENT_DESCENDANTS" "$tree_rss_mb" "$CURRENT_LEVEL"
+      if [[ -n "$CURRENT_REASON" ]]; then
+        printf '        %s\n' "$CURRENT_REASON"
+      fi
+    else
+      handle_state "$pid" "$label PID $pid" "$CURRENT_LEVEL" "$CURRENT_REASON"
+    fi
+  done
+
+  total_tree_rss_mb=$(( (total_tree_rss_kb + 1023) / 1024 ))
+  memory_thresholds=$(global_thresholds)
+  warn_global_memory_mb=${memory_thresholds%% *}
+  critical_global_memory_mb=${memory_thresholds##* }
+
+  if (( total_processes >= CRITICAL_GLOBAL_PROCESSES )); then
+    critical_reasons+=("$total_processes Codex-family processes")
+  elif (( total_processes >= WARN_GLOBAL_PROCESSES )); then
+    warning_reasons+=("$total_processes Codex-family processes")
+  fi
+
+  if (( total_tree_rss_mb >= critical_global_memory_mb )); then
+    critical_reasons+=("${total_tree_rss_mb} MiB aggregate tree RSS")
+  elif (( total_tree_rss_mb >= warn_global_memory_mb )); then
+    warning_reasons+=("${total_tree_rss_mb} MiB aggregate tree RSS")
+  fi
+
+  kernel_files=$(/usr/sbin/sysctl -n kern.num_files 2>/dev/null || print -r -- 0)
+  kernel_maxfiles=$(/usr/sbin/sysctl -n kern.maxfiles 2>/dev/null || print -r -- 0)
+  if (( kernel_maxfiles > 0 )); then
+    kernel_percent=$(( kernel_files * 100 / kernel_maxfiles ))
+    if (( kernel_percent >= 85 )); then
+      critical_reasons+=("kernel file table ${kernel_percent}% full")
+    elif (( kernel_percent >= 70 )); then
+      warning_reasons+=("kernel file table ${kernel_percent}% full")
+    fi
+  fi
+
+  if (( ${#critical_reasons} > 0 )); then
+    global_level="critical"
+    global_reason="${(j:, :)critical_reasons}"
+  elif (( ${#warning_reasons} > 0 )); then
+    global_level="warning"
+    global_reason="${(j:, :)warning_reasons}"
+  fi
+
+  if [[ "$mode" == "status" ]]; then
+    printf '\nAggregate: %s roots, %s processes, %s MiB tree RSS, kernel files %s/%s (%s%%), level %s\n' \
+      "$root_count" "$total_processes" "$total_tree_rss_mb" \
+      "$kernel_files" "$kernel_maxfiles" "$kernel_percent" "$global_level"
+    [[ -z "$global_reason" ]] || printf '           %s\n' "$global_reason"
+  else
+    handle_state "global" "all Codex runtimes" "$global_level" "$global_reason"
+  fi
+}
+
+run_isolated() {
+  "${0:A:h}/codex-isolated" "$@"
+}
+
+self_test() {
+  local failures=0
+
+  [[ "$(effective_threshold 256 70 180)" == "179" ]] || failures=$(( failures + 1 ))
+  [[ "$(effective_threshold 256 85 220)" == "217" ]] || failures=$(( failures + 1 ))
+  [[ "$(effective_threshold 1024 70 180)" == "180" ]] || failures=$(( failures + 1 ))
+  [[ "$(effective_threshold 1024 85 220)" == "220" ]] || failures=$(( failures + 1 ))
+
+  if (( failures > 0 )); then
+    print -ru2 -- "$PROGRAM_NAME: $failures self-test assertion(s) failed"
+    return 1
+  fi
+  print -r -- "$PROGRAM_NAME: self-test passed"
+}
+
+main() {
+  local command=${1:---status}
+
+  case "$command" in
+    --check)
+      [[ $# -eq 1 ]] || { usage >&2; return 2; }
+      run_monitor check
+      ;;
+    --status)
+      [[ $# -eq 1 ]] || { usage >&2; return 2; }
+      run_monitor status
+      ;;
+    --test-notification)
+      [[ $# -eq 1 ]] || { usage >&2; return 2; }
+      send_notification \
+        "Codex resource monitor" \
+        "Notification test" \
+        "Monitoring is installed and notifications are working."
+      ;;
+    --register-limit)
+      [[ $# -eq 3 ]] || { usage >&2; return 2; }
+      register_limit "$2" "$3"
+      ;;
+    --run-isolated)
+      shift
+      run_isolated "$@"
+      ;;
+    --self-test)
+      [[ $# -eq 1 ]] || { usage >&2; return 2; }
+      self_test
+      ;;
+    --help|-h)
+      usage
+      ;;
+    *)
+      print -ru2 -- "$PROGRAM_NAME: unknown command: $command"
+      usage >&2
+      return 2
+      ;;
+  esac
+}
+
+main "$@"

@@ -1,145 +1,117 @@
-These dotfiles are based on the [thoughtbot dotfiles](https://github.com/thoughtbot/dotfiles) (and [rcm](https://github.com/thoughtbot/rcm)), and are largely just overrides against thoughtbot's defaults based on
-personal preference.
+# Dotfiles
 
-## New System Setup
+Personal macOS configuration layered over [thoughtbot/dotfiles](https://github.com/thoughtbot/dotfiles), installed with [rcm](https://github.com/thoughtbot/rcm). Neovim is the default terminal and Git editor.
 
-Use the [thoughtbot laptop script](https://github.com/thoughtbot/laptop) to set
-up a new machine. The `laptop.local` script here will install the following (not
-included in the thoughtbot script by default):
+## Install on a new Mac
 
-### Developer Tools
+Install Homebrew, Git, and rcm, then clone the public configuration and thoughtbot defaults:
 
-1. MacVim
-1. [Overmind](https://github.com/DarthSim/overmind)
-1. iTerm2
-1. Karabiner Elements (keyboard customization/remapping)
-1. GitHub
-1. jq
-1. jiq
-1. yq
-1. iperf3
-1. Parallels
-1. VS Code
-1. Postman
-1. OWASP Zap
-
-### Dependencies and Dependency Management
-
-1. vips (image processing)
-1. pipx
-1. Microcontroller Firmware Tooling: cmake, ninja, dfu-util, ccache, sdl2
-1. Software supply chain: notation, licensed
-
-### Infrastructure Management
-
-1. AWS CLI
-1. SOPS
-1. kubectl
-1. clusterctl
-1. Helm
-1. kind
-1. [step](https://github.com/smallstep/cli?tab=readme-ov-file)
-1. fluxctl and flux
-1. ArgoCD
-1. Azure and Azure Functions CLIs
-1. watch
-1. eksctl
-1. certbot
-1. [Cert Manager CLI](https://cert-manager.io/docs/reference/cmctl/)
-1. Balena Etcher
-1. OpenVPN Connect
-1. Lens (K8s Observation)
-1. AWSume
-
-
-### General Use
-
-1. 1Password
-1. Google Chrome
-1. Dropbox
-1. Microsoft Office/Teams/etc
-1. Speedtest CLI
-1. Tailscale
-1. Slack
-1. Discord
-1. Spotify
-1. Zoom
-1. Raycast
-1. Avast Security
-
-
-**NOTE:** Remove the line in the thoughtbot mac script that installs vim to
-avoid a clash with the MacVim install.
-
+```sh
+git clone https://github.com/thoughtbot/dotfiles.git ~/.thoughtbot-dotfiles
+git clone https://github.com/hiattp/dotfiles.git ~/.hiattp-dotfiles
 ```
-curl https://raw.githubusercontent.com/hiattp/dotfiles/master/laptop.local > ~/.laptop.local
+
+For a work machine, authenticate GitHub and also clone the optional private companion:
+
+```sh
+git clone git@github.com:hiattp/dotfiles-private.git ~/.hiattp-dotfiles-private
+```
+
+Preview and install the symlinks:
+
+```sh
+env RCRC="$HOME/.hiattp-dotfiles/rcrc" lsrc
+env RCRC="$HOME/.hiattp-dotfiles/rcrc" rcup -K
+```
+
+Use `rcup -K` to skip the thoughtbot post-install hook, which still tries to install and update Vim plugins. Review any existing-file conflicts before replacing them. `rcrc` combines the private companion, public configuration, and thoughtbot defaults, in that order. Documentation, migration archives, tests, local Claude settings, optional tools, and legacy Vim configuration are excluded from installation. Executables in `bin` are linked into `~/bin`.
+
+Use the [thoughtbot laptop script](https://github.com/thoughtbot/laptop) for the remaining machine setup. It sources `~/.laptop.local`, which is installed above. Review its base package list too: it may still install Vim independently of this configuration.
+
+```sh
 curl --remote-name https://raw.githubusercontent.com/thoughtbot/laptop/master/mac
+less mac
 sh mac 2>&1 | tee ~/laptop.log
 ```
 
-NOTE: You'll want to adjust a few settings/parameters in the applications that
-were installed:
+`laptop.local` is the maintained Homebrew install list. It includes Neovim, fzf, ripgrep, Git/GitHub CLI, Git LFS, rcm, asdf, Kerberos, cloud and Kubernetes tools, document utilities, and desktop applications. Optional work packages come from `~/.laptop.private` in the companion repository. Runtime versions remain in `tool-versions`; review those pins before installing on a new OS.
 
-1. In Karabiner Elements, go to "Complex modifications" and "Add rule" to find
-   the Escape Multifunction behavior and enable it. Then choose "Parameters" and
-   change `to_if_alone_timeout_milliseconds` to 500.
-1. In Karabiner Elements, map Caps Lock to Escape as a "Simple modification".
-1. In OSX change the cursor speed and key repeat speed to highest, and
-   delay until key repeat to lowest in the Mouse and Keyboard settings
-   respectively.
-1. In OSX enable Accessibility > Track Pad > Click Lock Drag.
-1. In OSX Screensaver > Hot Corners set the bottom right to "Desktop".
-1. In OSX check Trackpad > Tap to click and Tracking Speed to Fast.
-1. In Chrome uncheck Chrome > Warn Before Quitting.
-1. Configure/Setup Dropbox
-1. Configure/Setup 1Password
-1. Go to iTerm2 > Preferences > Profiles and click Other Actions > Import JSON
-   Profiles, importing `iterm_profile.json`.
-1. Speed up the mouse scaling with `defaults write -g com.apple.mouse.scaling  12.0`.
-   A restart is needed for this to take effect.
+## Public and private settings
 
-## Neovim setup
+The public repo supplies personal defaults. The private companion supplies optional files:
 
-Setup a python environment for neovim and install the python plugin:
+| File | Purpose |
+| --- | --- |
+| `gitconfig.private` | Git identity, SSH/signing paths, and work overrides |
+| `aliases.private` | Work aliases |
+| `zshrc.private` | Machine/work paths and environment variables |
+| `laptop.private` | Additional work software |
+| `zsh/functions/*` | Work-specific shell helpers |
 
-```
-> python -m venv ~/neovim
-> source ~/neovim/bin/activate
-> (neovim) python3 -m pip install --upgrade pynvim
-> which python
-```
+Git includes `~/.gitconfig.private` last, and Zsh loads the private shell files when present. Without the companion, the public configuration uses the personal Git identity and does not require a particular SSH key or signing setup. Store credentials and private keys in the appropriate credential store, outside both repositories.
 
-The output from `which` is the value to use in this setting:
+## Neovim
 
-    let g:python3_host_prog = '/Users/phiatt/neovim/bin/python'
+The Lua configuration lives in `config/nvim`. Start `nvim` after installation; lazy.nvim installs plugins. Use `:Lazy restore` to restore the versions recorded in `lazy-lock.json`, then `:checkhealth` to inspect external dependencies. Updates are checked but no longer applied automatically at startup.
 
-## Dotfile Installation on Existing Systems
+The Claude Code and Splitwise plugins use local checkouts at `~/repos/claude-code.nvim` and `~/repos/splitwise.nvim` when those directories exist; otherwise lazy.nvim fetches them from GitHub. The companion's migration notes preserve local Claude Code changes from the previous machine. Copilot's configuration is retained but disabled.
 
-The following adds the `~/.hiattp-dotfiles` and  `~/.thoughtbot-dotfiles` directories, then uses rcm to symlink the dotfiles into the home directory. Note that some things won't work unless you are running Zsh instead of Bash, and you must have [rcm](https://github.com/thoughtbot/rcm) installed.
+Install MesloLG Nerd Font and select it in iTerm2. Ruby language support expects `ruby-lsp` in the active asdf Ruby environment (`gem install ruby-lsp`). Project formatters such as RuboCop, erb_lint, and Prettier should be installed with each project's dependencies. The old Vim/MacVim configuration and Python-provider instructions have been retired; Vimscript plugins used by Neovim are retained.
 
-```
-git clone https://github.com/thoughtbot/dotfiles.git ~/.thoughtbot-dotfiles
-git clone https://github.com/hiattp/dotfiles.git ~/.hiattp-dotfiles
-env RCRC=$HOME/.hiattp-dotfiles/rcrc rcup
+For the standalone `sonarjs` helper, install its saved dependencies once:
+
+```sh
+cd ~/.local/lint-tools
+pnpm install --frozen-lockfile
 ```
 
-## Other Notes:
+## Kerberos
 
-The flavor du jour of runtime version managers (as far as these dotfiles are
-concerned) is [asdf-vm](https://asdf-vm.com/). You'll want to follow install
-instructions there if you didn't pull it in via the laptop script above. Also
-keep in mind that `asdf` may generate shims for things like `node`, so if you
-install a different node version with homebrew and do something like `brew
-unlink node` you'll also need to ensure you aren't pointing to a shim (i.e.
-check `which node`) and potentially remove it before linking a different
-version.
+The install list explicitly includes [`krb5`](https://formulae.brew.sh/formula/krb5), which supplies `kinit`, `klist`, and `kdestroy`. Homebrew keeps it keg-only because macOS also supplies Kerberos. Plain `kinit` can therefore still select Apple's version, as it did on the previous machine. To use MIT Kerberos explicitly:
 
-If you use Heroku you might want to use
-[heroku accounts](https://github.com/heroku/heroku-accounts) and
-[heroku-binstubs](https://github.com/tpope/heroku-binstubs).
+```sh
+"$(brew --prefix krb5)/bin/kinit" your-principal
+```
 
-The laptop script installs
-[universal-ctags](https://github.com/universal-ctags/ctags) so
-be sure to run a `ctags` command, e.g. for Rails projects:
+If MIT Kerberos should be the default on a work machine, add its `bin` directory to PATH in `zshrc.private`. Restore realm configuration separately as described in the companion; obtain fresh tickets on the new machine.
 
-    ctags -R --languages=ruby --exclude=.git --exclude=log -f tags . $(bundle list --paths)
+## Codex and resource checks
+
+`codex-isolated` launches `codex --no-daemon` and raises the session's soft file-descriptor limit to at least 1024 without changing the calling shell's limits. Set `CODEX_ISOLATED_NOFILE_LIMIT` to choose another minimum within the OS hard limit. Arguments are forwarded unchanged:
+
+```sh
+codex-isolated
+codex-isolated resume
+```
+
+The optional `codex-resource-monitor` reports file descriptors, descendant processes, memory, and the system kernel file table. These checks concern resources other than disk space. It sends notifications only when explicitly invoked with `--check` or enabled as a LaunchAgent; it never kills or restarts sessions.
+
+```sh
+codex-resource-monitor --status
+codex-resource-monitor --self-test
+```
+
+The LaunchAgent is excluded from normal `rcup` installation. To enable periodic checks on a particular Mac:
+
+```sh
+mkdir -p ~/Library/LaunchAgents
+cp ~/.hiattp-dotfiles/optional/launchd/com.hiattp.codex-resource-monitor.plist ~/Library/LaunchAgents/
+launchctl bootstrap "gui/$(id -u)" ~/Library/LaunchAgents/com.hiattp.codex-resource-monitor.plist
+```
+
+Disable with `launchctl bootout "gui/$(id -u)/com.hiattp.codex-resource-monitor"`. Isolation works without the monitor; when available, the launcher records its actual descriptor limit for status reporting.
+
+## Worktrees
+
+`gwa` wraps `git worktree add`. It creates an ordinary worktree by default; `--cow` copies ignored files and paths listed in `.cow-include` using APFS copy-on-write, with a regular-copy fallback. Existing destination paths are preserved unless `--cow-force` is given. Copying remains explicit to avoid bringing credentials, dependencies, or generated files into a checkout unintentionally.
+
+```sh
+gwa -b feature ../project-feature
+gwa --cow -b feature ../project-feature
+```
+
+There is no fixed worktree-count or free-space limit in this configuration. When cleaning up worktrees, retain the correctness checks: remove only clean, unlocked, inactive worktrees whose commits are proven merged; use `git worktree remove` without force, and preserve branches and session history.
+
+## Application settings
+
+Import `iterm_profile.json` in iTerm2. In Karabiner Elements, enable the Escape Multifunction rule and set `to_if_alone_timeout_milliseconds` to 500; map Caps Lock to Escape if desired. Other application preferences and authentication should be reviewed on the new machine.

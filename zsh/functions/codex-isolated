@@ -1,0 +1,4 @@
+# Start an embedded Codex runtime without depending on the resource monitor.
+codex-isolated() {
+  "$HOME/bin/codex-isolated" "$@"
+}

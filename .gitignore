@@ -1,1 +1,13 @@
 mac
+.DS_Store
+**/.claude/
+**/node_modules/
+private/
+*.private
+.env
+.env.*
+
+# Temporary local compatibility copies; maintained in the private companion.
+/zsh/functions/kgrp
+/zsh/functions/rmc
+/raycast.rayconfig

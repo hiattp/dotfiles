@@ -39,16 +39,9 @@ require("lazy").setup({
 	dev = {
 		path = "~/repos",
 		-- @type string[] plugins that match these patterns will use your local versions instead of being fetched from GitHub
-		patterns = {}, -- For example {"folke"}
-		fallback = false,
+		patterns = {}, -- Opt into local plugin checkouts per plugin.
+		fallback = true,
 	},
-})
-
--- Auto Update
-vim.api.nvim_create_autocmd("VimEnter", {
-	callback = function()
-		require("lazy").update({ show = false })
-	end,
 })
 
 require("config.keymaps")

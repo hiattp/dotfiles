@@ -1,10 +1,10 @@
-# See git_worktree_add_copy_on_write definition below. The point of this function is to perform
-# a `git add worktree` command but also use "copy on write" to get all of the ignored files
-# into the new worktree (a fast operation that will only cause new physical files to
-# write if they are modified).
+# See git_worktree_add_copy_on_write below. The wrapper creates a lean Git worktree by
+# default. Copy-on-write cloning of ignored files is available only with explicit --cow.
 #
 #
-# Copy-on-write clone of ignored files/dirs from the primary worktree into the target worktree
+# Copy-on-write clone of ignored files/dirs from the primary worktree into the target worktree.
+# Also copies any additional paths listed in a .cow-include file at the source root
+# (one relative path per line, comments with # and blank lines allowed).
 # See: worktree_cow_ignored [-f] [DEST_WORKTREE_ROOT] [SOURCE_PRIMARY_ROOT]
 worktree_cow_ignored() {
   emulate -L zsh
@@ -89,6 +89,8 @@ worktree_cow_ignored() {
     source_root="$primary_worktree"
   fi
 
+  dest_root="${dest_root:A}"
+  source_root="${source_root:A}"
   if [[ "$dest_root" == "$source_root" ]]; then
     print -ru2 -- "Destination equals primary; nothing to do."
     return 1
@@ -96,14 +98,37 @@ worktree_cow_ignored() {
 
   [[ -d "$source_root" && -d "$dest_root" ]] || { print -ru2 -- "Source or destination directory does not exist"; return 1; }
 
+  local cow_include="$source_root/.cow-include"
+  local relpath
+  if [[ -f "$cow_include" ]]; then
+    while IFS= read -r relpath || [[ -n "$relpath" ]]; do
+      [[ -z "$relpath" || "$relpath" == \#* ]] && continue
+      if [[ "$relpath" == /* || "/$relpath/" == */../* || "/$relpath/" == */./* || "/$relpath/" == */.git/* ]]; then
+        print -ru2 -- "Unsafe .cow-include path: $relpath"
+        return 2
+      fi
+    done < "$cow_include"
+  fi
+
+  # Reject traversal through destination symlinks and recursive copies of a
+  # directory containing the destination worktree.
+  cow_path_is_safe() {
+    local src_real="${1:A}" dst_real="${2:A}"
+    if [[ "$src_real" == "$dest_root" || "$dest_root" == "$src_real"/* || "$dst_real" != "$dest_root"/* ]]; then
+      print -ru2 -- "Skipping unsafe copy: $1 -> $2"
+      return 1
+    fi
+  }
+
   "$git_bin" -C "$source_root" ls-files -io --exclude-standard --directory --no-empty-directory -z \
   | while IFS= read -r -d '' relpath; do
       local src="$source_root/$relpath"
       local dst="$dest_root/$relpath"
 
-      [[ -e "$src" ]] || continue
+      [[ -e "$src" || -L "$src" ]] || continue
+      cow_path_is_safe "$src" "$dst" || continue
 
-      if [[ -e "$dst" ]]; then
+      if [[ -e "$dst" || -L "$dst" ]]; then
         (( force )) || continue
         "$rm_bin" -rf -- "$dst"
       fi
@@ -124,12 +149,50 @@ worktree_cow_ignored() {
         fi
       fi
     done
+
+  # Copy additional paths listed in .cow-include (one relative path per line)
+  if [[ -f "$cow_include" ]]; then
+    while IFS= read -r relpath || [[ -n "$relpath" ]]; do
+      # Skip blank lines and comments
+      [[ -z "$relpath" || "$relpath" == \#* ]] && continue
+      # Strip trailing slashes
+      relpath="${relpath%/}"
+
+      local src="$source_root/$relpath"
+      local dst="$dest_root/$relpath"
+
+      [[ -e "$src" || -L "$src" ]] || continue
+      cow_path_is_safe "$src" "$dst" || continue
+
+      if [[ -e "$dst" || -L "$dst" ]]; then
+        (( force )) || continue
+        "$rm_bin" -rf -- "$dst"
+      fi
+
+      if [[ -d "$src" && ! -L "$src" ]]; then
+        "$mkdir_bin" -p -- "$dst"
+        if "$cp_bin" -c -R "$src/." "$dst" 2>/dev/null; then
+          :
+        else
+          "$cp_bin" -R "$src/." "$dst"
+        fi
+      else
+        "$mkdir_bin" -p -- "${dst:h}"
+        if "$cp_bin" -c "$src" "$dst" 2>/dev/null; then
+          :
+        else
+          "$cp_bin" "$src" "$dst"
+        fi
+      fi
+    done < "$cow_include"
+  fi
 }
 
-# Wrapper: behaves like `git worktree add`, then runs worktree_cow_ignored on the new worktree
+# Wrapper: behaves like `git worktree add`; ignored files are not copied by default.
 # Extra flags (consumed by this wrapper, not passed to git):
-#   --no-cow       skip copy-on-write step
-#   --cow-force    force overwrite existing paths in destination
+#   --cow          copy ignored files into the new worktree using copy-on-write
+#   --no-cow       explicitly keep the new worktree lean (the default)
+#   --cow-force    opt into copy-on-write and overwrite existing destination paths
 git_worktree_add_copy_on_write() {
   emulate -L zsh
   setopt err_return nounset pipefail
@@ -156,40 +219,48 @@ git_worktree_add_copy_on_write() {
     return 127
   fi
 
-  local do_cow=1 cow_force=0
+  local do_cow=0 cow_force=0
   local -a git_args=()
   local arg
   for arg in "$@"; do
     case "$arg" in
       --no-cow) do_cow=0;;
-      --cow-force) cow_force=1;;
+      --cow-force) do_cow=1; cow_force=1;;
       --cow) do_cow=1;;
       *) git_args+=("$arg");;
     esac
   done
 
   # Find <path> argument for `git worktree add`
-  local path="" saw_ddash=0
+  local dest_path="" saw_ddash=0 skip_value=0
   for arg in "${git_args[@]}"; do
-    if (( saw_ddash )); then
-      if [[ -z "$path" ]]; then path="$arg"; break; fi
+    if (( skip_value )); then
+      skip_value=0
+    elif (( saw_ddash )); then
+      dest_path="$arg"
+      break
     elif [[ "$arg" == "--" ]]; then
       saw_ddash=1
+    elif [[ "$arg" == -b || "$arg" == -B || "$arg" == --orphan || "$arg" == --reason ]]; then
+      skip_value=1
     elif [[ "$arg" == -* ]]; then
       continue
     else
-      path="$arg"; break
+      dest_path="$arg"
+      break
     fi
   done
-  if [[ -z "$path" ]]; then
+  if [[ -z "$dest_path" ]]; then
     print -ru2 -- "Could not determine <path> for 'git worktree add'"
     return 2
   fi
 
+  # A failed add must never copy into a pre-existing directory. Preserve Git's
+  # exit status, including post-checkout hook failures, for the caller.
   "$git_bin" worktree add "${git_args[@]}" || return $?
+  local dest="${dest_path:A}"
 
   if (( do_cow )); then
-    local dest="${path:A}"  # absolute path to the new worktree
     if (( cow_force )); then
       worktree_cow_ignored -f "$dest"
     else

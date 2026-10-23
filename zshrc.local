@@ -1,14 +1,16 @@
 PATH="./bin:/usr/local/bin:/usr/local/sbin:/usr/local/git/bin:$PATH"
 cdpath=($HOME/Sites $HOME/projects $HOME/repos)
 
+export EDITOR=nvim
+export VISUAL=nvim
+
 export GPG_TTY=$(tty)
 
 export IDF_CCACHE_ENABLE=1
 
 export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 
-export PATH="$HOME/.bin:$PATH"
-export PATH="$HOME/Library/Python/3.8/bin:$PATH"
+export PATH="$HOME/bin:$HOME/.bin:$PATH"
 # NOTE: This is the default location for pipx:
 export PATH="$HOME/.local/bin:$PATH"
 
@@ -16,10 +18,12 @@ export PATH="$HOME/.local/bin:$PATH"
 export GOPATH=$HOME/repos/go_repos
 export PATH=$PATH:$GOPATH/bin
 
-# Kubernetes Config
-export KUBECONFIG="$HOME/.kube/config:$HOME/.kube/test-config:$HOME/.kube/rh-primary-config:$HOME/.kube/rh-management-bootstrap-config:$HOME/.kube/rh-management-config"
 
-eval "$(/opt/homebrew/bin/brew shellenv)"
+if [[ -x /opt/homebrew/bin/brew ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /usr/local/bin/brew ]]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
 
 # NOTE: Functions have been moved to zsh/functions/ directory.
 # They are automatically loaded by ZSH when needed.
@@ -30,6 +34,21 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 #
 # https://asdf-vm.com/#/core-manage-asdf-vm
 # . /opt/homebrew/opt/asdf/libexec/asdf.sh
-fpath=(${ASDF_DIR}/completions $fpath)
+# Current asdf uses shims; older installs may also have a completions directory.
+export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+[[ -n ${ASDF_DIR:-} && -d "$ASDF_DIR/completions" ]] && fpath=("$ASDF_DIR/completions" $fpath)
 autoload -Uz compinit
 compinit
+
+# Run eslint-plugin-sonarjs against any file/dir, no project-config dependency.
+# Usage: sonarjs <path> [<path>...]
+sonarjs() {
+  ~/.local/lint-tools/node_modules/.bin/eslint \
+    --no-config-lookup \
+    --config ~/.local/lint-tools/sonarjs.config.mjs \
+    "$@"
+}
+
+# Optional machine/work settings from the private companion repository.
+[[ -f ~/.zshrc.private ]] && source ~/.zshrc.private
+[[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
