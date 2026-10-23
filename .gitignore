@@ -7,7 +7,5 @@ private/
 .env
 .env.*
 
-# Temporary local compatibility copies; maintained in the private companion.
-/zsh/functions/kgrp
-/zsh/functions/rmc
+# Work Raycast export is maintained in the private companion.
 /raycast.rayconfig
