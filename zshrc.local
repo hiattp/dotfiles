@@ -40,15 +40,6 @@ export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 autoload -Uz compinit
 compinit
 
-# Run eslint-plugin-sonarjs against any file/dir, no project-config dependency.
-# Usage: sonarjs <path> [<path>...]
-sonarjs() {
-  ~/.local/lint-tools/node_modules/.bin/eslint \
-    --no-config-lookup \
-    --config ~/.local/lint-tools/sonarjs.config.mjs \
-    "$@"
-}
-
 # Optional machine/work settings from the private companion repository.
 [[ -f ~/.zshrc.private ]] && source ~/.zshrc.private
 [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh

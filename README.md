@@ -48,7 +48,7 @@ The [thoughtbot laptop script](https://github.com/thoughtbot/laptop) runs `~/.la
 )
 ```
 
-See the [bootstrap review and preflight notes](optional/bootstrap-review.md) for the script's permissions, dependency chain, and known side effects. In particular, the base script also installs Vim, Heroku, PostgreSQL 18, and Redis, and starts the database services. Review those choices before executing it. The checksum pins this script; Homebrew packages, runtime installers, and Claude's native installer remain separate upstream dependencies.
+See the [bootstrap review and preflight notes](optional/bootstrap-review.md) for the script's permissions, dependency chain, and known side effects. In particular, the base script also installs Vim, Heroku, PostgreSQL 18, and Redis, and starts the database services. Review those choices before executing it. The checksum pins this script; Homebrew packages, runtime installers, Claude's native installer, and the globally installed Playwright npm package remain separate upstream dependencies.
 
 `laptop.local` is the maintained package list. It includes Neovim, fzf, ripgrep, Git/GitHub CLI, Git LFS, rcm, asdf, Kerberos, cloud and Kubernetes tools, document utilities, and desktop applications. Codex is a Homebrew cask and Claude Code uses its native installer. Optional work packages come from `~/.laptop.private` in the companion repository. Existing dotfile checkouts are reused without pulling changes during installation.
 
@@ -75,13 +75,6 @@ The Lua configuration lives in `config/nvim`. Start `nvim` after installation; l
 The Claude Code and Splitwise plugins use local checkouts at `~/repos/claude-code.nvim` and `~/repos/splitwise.nvim` when those directories exist; otherwise lazy.nvim fetches them from GitHub. The companion's migration notes preserve local Claude Code changes from the previous machine. Copilot's configuration is retained but disabled.
 
 Install MesloLG Nerd Font and select it in iTerm2. Ruby language support expects `ruby-lsp` in the active asdf Ruby environment (`gem install ruby-lsp`). Project formatters such as RuboCop, erb_lint, and Prettier should be installed with each project's dependencies. The old Vim/MacVim configuration and Python-provider instructions have been retired; Vimscript plugins used by Neovim are retained.
-
-For the standalone `sonarjs` helper, install its saved dependencies once:
-
-```sh
-cd ~/.local/lint-tools
-pnpm install --frozen-lockfile
-```
 
 ## Kerberos
 
@@ -131,5 +124,9 @@ gwa --cow -b feature ../project-feature
 There is no fixed worktree-count or free-space limit in this configuration. When cleaning up worktrees, retain the correctness checks: remove only clean, unlocked, inactive worktrees whose commits are proven merged; use `git worktree remove` without force, and preserve branches and session history.
 
 ## Application settings
+
+The laptop setup installs [Playwright's browser CLI for coding agents](https://playwright.dev/docs/getting-started-cli) globally with `npm install --global @playwright/cli@latest`, after selecting Node LTS. Its command is `playwright-cli`; verify it with `playwright-cli --help`. This CLI works independently of the older Playwright MCP development checkout recorded in the private migration templates.
+
+For a shared Claude Code skill across projects, optionally run `playwright-cli install --skills -g`. The CLI also works through its own help and commands without installing that skill.
 
 Import `iterm_profile.json` in iTerm2. In Karabiner Elements, enable the Escape Multifunction rule and set `to_if_alone_timeout_milliseconds` to 500; map Caps Lock to Escape if desired. Other application preferences and authentication should be reviewed on the new machine.

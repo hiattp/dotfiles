@@ -43,7 +43,7 @@ def scenario(changes=None):
         (home/'.thoughtbot-dotfiles/.git').mkdir(parents=True)
         fakebin = base/'bin'
         fakebin.mkdir()
-        for name in ['brew','asdf','curl','git','go','pipx','rcup']:
+        for name in ['brew','asdf','curl','git','go','pipx','rcup','npm']:
             stub = fakebin/name
             stub.write_text('#!'+sys.executable+'\n'+STUB)
             stub.chmod(0o755)
@@ -64,6 +64,9 @@ assert ['asdf','install','nodejs','24.11.1'] in calls
 assert ['asdf','set','--home','nodejs','24.11.1'] in calls
 assert ['asdf','install','ruby','4.0.3'] in calls
 assert ['asdf','install','terraform','1.17.0'] in calls
+playwright_install = ['npm','install','--global','@playwright/cli@latest']
+assert calls.index(['asdf','set','--home','nodejs','24.11.1']) < calls.index(playwright_install)
+assert calls.index(playwright_install) < calls.index(['asdf','reshim','nodejs'])
 assert ['rcup','-K'] in calls
 assert not any(c[0]=='git' and c[1:]!=['lfs','install'] for c in calls)
 assert not any(c==['asdf','install'] for c in calls)

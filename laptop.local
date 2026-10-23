@@ -125,6 +125,10 @@ install_asdf_default nodejs "$node_lts"
 install_asdf_default terraform "$(asdf latest terraform)"
 asdf reshim
 
+# Browser automation CLI for coding agents, installed for the selected Node LTS.
+npm install --global @playwright/cli@latest
+asdf reshim nodejs
+
 fancy_echo "Cleaning up old Homebrew formulae ..."
 brew cleanup
 
