@@ -132,4 +132,27 @@ The laptop setup installs [Playwright's browser CLI for coding agents](https://p
 
 For a shared Claude Code skill across projects, optionally run `playwright-cli install --skills -g`. The CLI also works through its own help and commands without installing that skill.
 
-Import `iterm_profile.json` in iTerm2. In Karabiner Elements, enable the Escape Multifunction rule and set `to_if_alone_timeout_milliseconds` to 500; map Caps Lock to Escape if desired. Other application preferences and authentication should be reviewed on the new machine.
+Import `iterm_profile.json` in iTerm2. Other application preferences and authentication should be reviewed on the new machine.
+
+## Karabiner-Elements
+
+`config/karabiner` contains the selected profile and all imported complex-modification assets. The selected profile includes Caps Lock → Escape, Escape → Control when held (Escape when tapped), a 500 ms tap timeout, both Shift keys → Caps Lock, and the Ctrl+1 text macro. Importing a preset alone does not enable it; the enabled rules are saved in `karabiner.json`.
+
+rcm links the entire `~/.config/karabiner` directory, following [Karabiner's configuration guidance](https://karabiner-elements.pqrs.org/docs/manual/misc/configuration-file-path/). Individual `karabiner.json` symlinks do not support reliable change detection. Karabiner's automatic backups are ignored by Git. Changes made through its UI update the checkout when the directory link is installed; commit and push those changes to carry them to another Mac.
+
+If Karabiner was installed before these files were added, wait for any running laptop installer to finish, then update the public checkout. Quit Karabiner-Elements, back up its current configuration directory, and install the directory link:
+
+```sh
+(
+  set -e
+  git -C "$HOME/.hiattp-dotfiles" pull --ff-only
+  if [ -e "$HOME/.config/karabiner" ] || [ -L "$HOME/.config/karabiner" ]; then
+    if [ "$(readlink "$HOME/.config/karabiner" 2>/dev/null || true)" != "$HOME/.hiattp-dotfiles/config/karabiner" ]; then
+      mv -i "$HOME/.config/karabiner" "$HOME/.config/karabiner.before-dotfiles-$(date +%Y%m%d%H%M%S)"
+    fi
+  fi
+  env RCRC="$HOME/.hiattp-dotfiles/rcrc" rcup -K config/karabiner
+)
+```
+
+Reopen Karabiner-Elements afterward. The default profile's rules should already be enabled. Complete any macOS Input Monitoring or driver approvals requested by the app.

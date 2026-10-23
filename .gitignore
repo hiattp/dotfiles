@@ -9,3 +9,6 @@ private/
 
 # Work Raycast export is maintained in the private companion.
 /raycast.rayconfig
+
+# Generated Karabiner backups remain machine-local.
+/config/karabiner/automatic_backups/

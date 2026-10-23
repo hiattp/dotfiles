@@ -4,3 +4,6 @@ if [ -d "$HOME/.hiattp-dotfiles-private" ]; then
   DOTFILES_DIRS="$HOME/.hiattp-dotfiles-private $DOTFILES_DIRS"
 fi
 UNDOTTED="bin"
+
+# Karabiner watches the parent directory; individual file symlinks are unsupported.
+SYMLINK_DIRS="config/karabiner ./config/karabiner"
