@@ -34,7 +34,7 @@ less mac
 sh mac 2>&1 | tee ~/laptop.log
 ```
 
-`laptop.local` is the maintained Homebrew install list. It includes Neovim, fzf, ripgrep, Git/GitHub CLI, Git LFS, rcm, asdf, Kerberos, cloud and Kubernetes tools, document utilities, and desktop applications. Optional work packages come from `~/.laptop.private` in the companion repository. Runtime versions remain in `tool-versions`; review those pins before installing on a new OS.
+`laptop.local` is the maintained Homebrew install list. It includes Neovim, fzf, ripgrep, Git/GitHub CLI, Git LFS, rcm, asdf, Kerberos, cloud and Kubernetes tools, document utilities, and desktop applications. Codex is installed as a Homebrew cask, and Claude Code uses its native installer (`curl -fsSL https://claude.ai/install.sh | bash`). Optional work packages come from `~/.laptop.private` in the companion repository. Runtime versions remain in `tool-versions`; review those pins before installing on a new OS.
 
 ## Public and private settings
 
