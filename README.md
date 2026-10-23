@@ -140,6 +140,10 @@ For the profile alone, open **iTerm2 → Settings → Profiles → Other Actions
 
 The private companion also contains reviewed global preferences and selects `hiattp` as default. Follow its README's **iTerm2 settings** instructions to use [iTerm2's custom settings folder](https://iterm2.com/3.5/documentation-preferences-general.html#settings); this replaces the separate profile import. Pulling the repo or running `rcup` alone does not enable that folder. Other application preferences and authentication should be reviewed on the new machine.
 
+### Raycast
+
+Raycast configuration is transferable through its **Export Settings & Data** and **Import Settings & Data** commands. The private companion contains an older `raycast.rayconfig` export with work-specific paths and instructions for refreshing it from the old Mac. Use a fresh export for the current setup; `rcup` does not import it automatically. See [Raycast's import/export documentation](https://manual.raycast.com/import-export).
+
 ## Karabiner-Elements
 
 `config/karabiner` contains the selected profile and all imported complex-modification assets. The selected profile includes Caps Lock → Escape, Escape → Control when held (Escape when tapped), a 500 ms tap timeout, both Shift keys → Caps Lock, and the Ctrl+1 text macro. Importing a preset alone does not enable it; the enabled rules are saved in `karabiner.json`.
