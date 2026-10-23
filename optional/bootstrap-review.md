@@ -35,6 +35,10 @@ Third-party trust is limited to specific packages, following [Homebrew's tap-tru
 
 The old .NET asdf plugin had not been updated since 2023; fresh installs use the maintained Homebrew .NET package instead. The same route uses Homebrew for Python, Go, and Rust. asdf remains available for project-specific version management. The old global Ruby 3.1, Node 23, Python 3.9, and .NET 6 selections are not carried into new installs.
 
+## Saved lint-tool dependency alerts
+
+GitHub flagged two denial-of-service advisories in `brace-expansion` 5.0.5, a transitive dependency of the saved SonarJS tooling. The lockfile was updated to 5.0.12, which covers [GHSA-3jxr-9vmj-r5cp](https://github.com/juliangruber/brace-expansion/security/advisories/GHSA-3jxr-9vmj-r5cp) and [GHSA-q2hr-2g5m-vwhr](https://github.com/juliangruber/brace-expansion/security/advisories/GHSA-q2hr-2g5m-vwhr). No direct dependency versions were changed. A registry audit of the corrected lockfile reported zero known vulnerabilities at review time. This fixes the saved installation snapshot; it does not reinstall the old computer's existing lint-tool environment.
+
 ## Before retiring the old computer
 
 1. Finish OS updates, company enrollment, FileVault configuration, and recovery-key storage on the new Mac. Use your ordinary account for the installer; review its explicit elevation prompts and application permissions.
