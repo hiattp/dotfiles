@@ -29,12 +29,15 @@ env RCRC="$HOME/.hiattp-dotfiles/rcrc" rcup -K
 
 Use `rcup -K` to skip the thoughtbot post-install hook, which still tries to install and update Vim plugins. Review existing-file conflicts before replacing them. `rcrc` combines the private companion, public configuration, and thoughtbot defaults, in that order. Documentation, migration archives, tests, local Claude settings, optional tools, legacy Vim configuration, and the old global runtime pins are excluded. Executables in `bin` are linked into `~/bin`.
 
-The [thoughtbot laptop script](https://github.com/thoughtbot/laptop) runs `~/.laptop.local` for the remaining setup. Download the exact script reviewed on 2026-10-23 and verify its SHA-256 before running it. The subshell stops on download/checksum errors and preserves the installer's failure status while logging:
+The [thoughtbot laptop script](https://github.com/thoughtbot/laptop) runs `~/.laptop.local` for the remaining setup. Download the exact script reviewed on 2026-10-23 and verify its SHA-256 before running it. The subshell first checks that the C compiler can link an executable, stops on download/checksum errors, and preserves the installer's failure status while logging. If the compiler reports `unknown architecture arm64e.x1`, use the [SDK compatibility workaround](optional/bootstrap-review.md#compiler-failure-with-arm64ex1):
 
 ```sh
 (
   set -e
   set -o pipefail
+  build_probe="$(mktemp -d)"
+  trap 'rm -rf "$build_probe"' EXIT
+  printf 'int main(void) { return 0; }\n' | clang -x c - -o "$build_probe/hello"
   setup_file="$HOME/laptop-mac-reviewed"
   curl -fsSL https://raw.githubusercontent.com/thoughtbot/laptop/6723ed10d3be551004b8abd95815ef3fd844c56c/mac -o "$setup_file"
   printf '%s  %s\n' 6099a557e8ff415da97690a3f7babb7cf94370206fb9cbacfbf2e2bab9bbc642 "$setup_file" | shasum -a 256 -c -

@@ -39,6 +39,30 @@ The old .NET asdf plugin had not been updated since 2023; fresh installs use the
 
 The unused SonarJS helper and its npm dependency snapshot were removed from the active dotfiles during this review. The earlier snapshot was patched before removal and remains in Git history if needed later. New-machine setup has no SonarJS restore step.
 
+## Compiler failure with arm64e.x1
+
+On macOS 26.7, Command Line Tools can select the macOS 27 SDK even when their linker cannot read its `arm64e.x1` architecture entries. The reported combination includes Apple Clang `clang-2100.1.1.101`, matching the new machine's failure. A [report in the Rust project](https://github.com/rust-lang/rust/issues/162928) documents a successful workaround using the already-installed macOS 26.5 SDK. The same linker/SDK incompatibility is also documented in [SWI-Prolog's build changelog](https://www.swi-prolog.org/ChangeLog?branch=development&from=10.1.14&to=10.1.15).
+
+If `/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk` exists, try this scoped workaround. It tests the compiler before retrying the previously downloaded and verified bootstrap, and leaves your shell's normal SDK selection unchanged after the subshell exits:
+
+```sh
+(
+  set -e
+  set -o pipefail
+  export SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk
+  if [ ! -d "$SDKROOT" ]; then
+    echo "The macOS 26.5 SDK is not installed; list available SDKs before proceeding." >&2
+    exit 1
+  fi
+  build_probe="$(mktemp -d)"
+  trap 'rm -rf "$build_probe"' EXIT
+  printf 'int main(void) { return 0; }\n' | clang -x c - -o "$build_probe/hello"
+  bash "$HOME/laptop-mac-reviewed" 2>&1 | tee "$HOME/laptop.log"
+)
+```
+
+If this SDK is absent or the compiler test still fails, list installed SDKs with `ls /Library/Developer/CommandLineTools/SDKs` and obtain a matched, organization-approved toolchain if necessary. Do not delete SDKs, rewrite their system symlinks, or disable device-management update restrictions. This workaround is a build-scoped compatibility choice; it does not repair the installed toolchain package. It has been compiler-tested on the old Mac, but the affected new Mac still needs to confirm it succeeds.
+
 ## Before retiring the old computer
 
 1. Finish OS updates, company enrollment, FileVault configuration, and recovery-key storage on the new Mac. Use your ordinary account for the installer; review its explicit elevation prompts and application permissions.
