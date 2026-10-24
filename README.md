@@ -75,6 +75,8 @@ Git includes `~/.gitconfig.private` last, and Zsh loads the private shell files 
 
 The Lua configuration lives in `config/nvim`. Start `nvim` after installation; lazy.nvim installs plugins. Use `:Lazy restore` to restore the versions recorded in `lazy-lock.json`, then `:checkhealth` to inspect external dependencies. Plugin update checks run silently every 30 days, with startup update notifications disabled. Open `:Lazy` to inspect available updates and use `:Lazy update` when ready to apply them.
 
+On Macs where the default compiler fails with the macOS 27 SDK's `arm64e.x1` entries, Neovim tests the installed macOS 26.5 SDK and uses it for child processes if compilation succeeds. This fallback respects an existing `SDKROOT`, leaves the shell's SDK selection unchanged, and stops applying once the default compiler works.
+
 The Claude Code and Splitwise plugins use local checkouts at `~/repos/claude-code.nvim` and `~/repos/splitwise.nvim` when those directories exist; otherwise lazy.nvim fetches them from GitHub. The companion's migration notes preserve local Claude Code changes from the previous machine. Copilot's configuration is retained but disabled.
 
 The laptop setup installs MesloLG Nerd Font; the saved iTerm2 profile selects it at 16 pt. Ruby language support expects `ruby-lsp` in the active asdf Ruby environment (`gem install ruby-lsp`). Project formatters such as RuboCop, erb_lint, and Prettier should be installed with each project's dependencies. The old Vim/MacVim configuration and Python-provider instructions have been retired; Vimscript plugins used by Neovim are retained.

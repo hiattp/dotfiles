@@ -71,8 +71,12 @@ assert ['rcup','-K'] in calls
 assert not any(c[0]=='git' and c[1:]!=['lfs','install'] for c in calls)
 assert not any(c==['asdf','install'] for c in calls)
 assert 'cask "zap"' not in manifest
-for entry in ['cask "1password-cli"','cask "azure-cli"','cask "tailscale-app"','brew "sdl2-compat"','cask "codex"','brew "dotnet"']:
+for entry in ['cask "1password-cli"','cask "azure-cli"','brew "sdl2-compat"','cask "codex"','brew "dotnet"']:
     assert entry in manifest,entry
+for entry in ['tap "azure/functions"','brew "azure/functions/azure-functions-core-tools@4"',
+              'cask "tailscale-app"','cask "balenaetcher"','cask "dropbox"',
+              'cask "avast-security"','cask "obsidian"']:
+    assert entry not in manifest,entry
 assert 'trusted: true' in manifest
 print('PASS: supported package entries, scoped trust, stable/LTS defaults, no checkout pulls or legacy pin installation')
 
