@@ -11,8 +11,6 @@ export IDF_CCACHE_ENABLE=1
 export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 
 export PATH="$HOME/bin:$HOME/.bin:$PATH"
-# NOTE: This is the default location for pipx:
-export PATH="$HOME/.local/bin:$PATH"
 
 # Go Repos
 export GOPATH=$HOME/repos/go_repos
@@ -35,7 +33,8 @@ fi
 # https://asdf-vm.com/#/core-manage-asdf-vm
 # . /opt/homebrew/opt/asdf/libexec/asdf.sh
 # Current asdf uses shims; older installs may also have a completions directory.
-export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+# Prefer standalone tools (Claude's native installer and pipx) to old npm shims.
+export PATH="$HOME/.local/bin:${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 [[ -n ${ASDF_DIR:-} && -d "$ASDF_DIR/completions" ]] && fpath=("$ASDF_DIR/completions" $fpath)
 autoload -Uz compinit
 compinit

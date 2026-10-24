@@ -98,7 +98,7 @@ curl -fsSL https://claude.ai/install.sh | bash
 add_or_update_asdf_plugin "ruby" "https://github.com/asdf-vm/asdf-ruby.git"
 add_or_update_asdf_plugin "nodejs" "https://github.com/asdf-vm/asdf-nodejs.git"
 add_or_update_asdf_plugin "terraform" "https://github.com/asdf-community/asdf-hashicorp.git"
-export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 
 install_asdf_default() {
   local plugin=$1 version=$2
