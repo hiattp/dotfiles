@@ -20,6 +20,7 @@ brew "neovim"
 brew "git"
 brew "gh"
 brew "gnupg"
+brew "pinentry-mac"
 brew "rcm"
 brew "asdf"
 brew "python"
@@ -126,6 +127,7 @@ brew cleanup
 
 ensure_git_checkout "https://github.com/thoughtbot/dotfiles.git" "$HOME/.thoughtbot-dotfiles"
 ensure_git_checkout "https://github.com/hiattp/dotfiles.git" "$HOME/.hiattp-dotfiles"
+"$HOME/.hiattp-dotfiles/bin/setup-gpg-pinentry"
 # rcrc may already be a symlink to this file on an existing machine.
 if [ ! "$HOME/.hiattp-dotfiles/rcrc" -ef "$HOME/.rcrc" ]; then
   cp "$HOME/.hiattp-dotfiles/rcrc" "$HOME/.rcrc"

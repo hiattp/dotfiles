@@ -17,6 +17,8 @@ with open(os.environ['DOTFILES_TEST_LOG'],'a') as f:
     f.write(json.dumps([name,*args])+'\n')
 if name=='brew' and args[:1]==['bundle']:
     pathlib.Path(os.environ['DOTFILES_TEST_MANIFEST']).write_text(sys.stdin.read())
+elif name=='brew' and args==['--prefix']:
+    print(os.environ['DOTFILES_TEST_BREW_PREFIX'])
 elif name=='asdf' and args[:1]==['latest']:
     print(os.environ.get('DOTFILES_TEST_RUBY','4.0.3') if args[1]=='ruby' else '1.17.0')
 elif name=='curl':
@@ -43,12 +45,13 @@ def scenario(changes=None):
         (home/'.thoughtbot-dotfiles/.git').mkdir(parents=True)
         fakebin = base/'bin'
         fakebin.mkdir()
-        for name in ['brew','asdf','curl','git','go','pipx','rcup','npm']:
+        for name in ['brew','asdf','curl','git','go','pipx','rcup','npm','gpgconf','pinentry-mac']:
             stub = fakebin/name
             stub.write_text('#!'+sys.executable+'\n'+STUB)
             stub.chmod(0o755)
         env = dict(os.environ,HOME=str(home),PATH=str(fakebin)+os.pathsep+os.environ['PATH'],
-                   DOTFILES_TEST_LOG=str(base/'commands.jsonl'),DOTFILES_TEST_MANIFEST=str(base/'Brewfile'))
+                   DOTFILES_TEST_LOG=str(base/'commands.jsonl'),DOTFILES_TEST_MANIFEST=str(base/'Brewfile'),
+                   DOTFILES_TEST_BREW_PREFIX=str(base),GNUPGHOME=str(home/'.gnupg'))
         env.pop('ASDF_DATA_DIR',None)
         env.update(changes or {})
         harness = 'fancy_echo() { printf "$1\\n" "${@:2}"; }; add_or_update_asdf_plugin() { asdf plugin add "$@"; }; source "$1"'
@@ -68,10 +71,11 @@ playwright_install = ['npm','install','--global','@playwright/cli@latest']
 assert calls.index(['asdf','set','--home','nodejs','24.11.1']) < calls.index(playwright_install)
 assert calls.index(playwright_install) < calls.index(['asdf','reshim','nodejs'])
 assert ['rcup','-K'] in calls
+assert ['gpgconf','--reload','gpg-agent'] in calls
 assert not any(c[0]=='git' and c[1:]!=['lfs','install'] for c in calls)
 assert not any(c==['asdf','install'] for c in calls)
 assert 'cask "zap"' not in manifest
-for entry in ['cask "1password-cli"','cask "azure-cli"','brew "sdl2-compat"','cask "codex"','brew "dotnet"']:
+for entry in ['cask "1password-cli"','cask "azure-cli"','brew "sdl2-compat"','cask "codex"','brew "dotnet"','brew "pinentry-mac"']:
     assert entry in manifest,entry
 for entry in ['tap "azure/functions"','brew "azure/functions/azure-functions-core-tools@4"',
               'cask "tailscale-app"','cask "balenaetcher"','cask "dropbox"',

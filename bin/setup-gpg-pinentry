@@ -1,0 +1,23 @@
+#!/bin/bash
+# Configure a graphical passphrase prompt without replacing existing settings.
+set -euo pipefail
+
+gpg_home=${GNUPGHOME:-$HOME/.gnupg}
+agent_config="$gpg_home/gpg-agent.conf"
+if [ -f "$agent_config" ] && grep -Eq '^[[:space:]]*pinentry-program([[:space:]]|=|$)' "$agent_config"; then
+  printf 'Keeping existing pinentry-program in %s\n' "$agent_config"
+  exit 0
+fi
+
+pinentry_program="$(brew --prefix)/bin/pinentry-mac"
+if [ ! -x "$pinentry_program" ]; then
+  printf 'Install the graphical GPG prompt first: brew install pinentry-mac\n' >&2
+  exit 1
+fi
+
+umask 077
+mkdir -p "$gpg_home"
+printf '\n# Graphical passphrase prompt for terminal and GUI applications.\npinentry-program %s\n' "$pinentry_program" >> "$agent_config"
+gpgconf --check-options gpg-agent
+gpgconf --reload gpg-agent
+printf 'Configured graphical GPG prompt: %s\n' "$pinentry_program"

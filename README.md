@@ -71,6 +71,19 @@ The public repo supplies personal defaults. The private companion supplies optio
 
 Git includes `~/.gitconfig.private` last, and Zsh loads the private shell files when present. Without the companion, the public configuration uses the personal Git identity and does not require a particular SSH key or signing setup. Store credentials and private keys in the appropriate credential store, outside both repositories.
 
+## GPG passphrase prompts
+
+The laptop setup installs [Homebrew's graphical `pinentry-mac`](https://formulae.brew.sh/formula/pinentry-mac) and configures GPG to use it. This supports passphrase prompts in both Terminal and GUI apps such as GPG Keychain. An existing `pinentry-program` choice is preserved; other agent settings are left in place.
+
+For a Mac whose laptop setup already ran, pull the latest public dotfiles and run:
+
+```sh
+brew install pinentry-mac
+~/.hiattp-dotfiles/bin/setup-gpg-pinentry
+```
+
+The helper writes the installed Homebrew path into `~/.gnupg/gpg-agent.conf` (or `$GNUPGHOME/gpg-agent.conf` when set), validates it, and reloads the agent only when it adds the setting. The path is resolved per machine, so it works with Apple Silicon and Intel Homebrew installations. `rcup` alone does not configure it. The old Mac's working GPG Suite pinentry choice is preserved. If you copy an existing agent configuration to another Mac, check that its selected pinentry executable exists there. Keys, passphrases, and agent caches remain outside dotfiles.
+
 ## Neovim
 
 The Lua configuration lives in `config/nvim`. Start `nvim` after installation; lazy.nvim installs plugins. Use `:Lazy restore` to restore the versions recorded in `lazy-lock.json`, then `:checkhealth` to inspect external dependencies. Plugin update checks run silently every 30 days, with startup update notifications disabled. Open `:Lazy` to inspect available updates and use `:Lazy update` when ready to apply them.
