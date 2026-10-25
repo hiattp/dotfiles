@@ -71,6 +71,8 @@ The public repo supplies personal defaults. The private companion supplies optio
 
 Git includes `~/.gitconfig.private` last, and Zsh loads the private shell files when present. Without the companion, the public configuration uses the personal Git identity and does not require a particular SSH key or signing setup. Store credentials and private keys in the appropriate credential store, outside both repositories.
 
+On macOS, interactive Zsh shells restore SSH keys saved in Keychain into Apple's local SSH agent. This makes them available for Git signing after login; SSH's per-host `UseKeychain` setting alone does not load signing keys. Forwarded and custom agents, including 1Password, are left alone. The startup command disables terminal/askpass passphrase prompts and quietly skips keys it cannot load. To save a signing key's passphrase initially, run `/usr/bin/ssh-add --apple-use-keychain ~/.ssh/id_ed25519_signing` in Terminal. This only saves it on the current Mac; dotfiles contain no keys or passphrases. GUI Git clients launched before the first terminal may still need `/usr/bin/ssh-add --apple-load-keychain` run manually.
+
 ## GPG passphrase prompts
 
 The laptop setup installs [Homebrew's graphical `pinentry-mac`](https://formulae.brew.sh/formula/pinentry-mac) and configures GPG to use it. This supports passphrase prompts in both Terminal and GUI apps such as GPG Keychain. An existing `pinentry-program` choice is preserved; other agent settings are left in place.

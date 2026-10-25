@@ -41,4 +41,12 @@ compinit
 
 # Optional machine/work settings from the private companion repository.
 [[ -f ~/.zshrc.private ]] && source ~/.zshrc.private
+
+# Git signing uses ssh-agent without SSH's per-host UseKeychain settings.
+# Restore saved keys only to Apple's local agent, never a forwarded/custom agent.
+if [[ -o interactive && $OSTYPE == darwin* &&
+      ${SSH_AUTH_SOCK:-} == (/private|)(/tmp|/var/run)/com.apple.launchd.*/Listeners ]]; then
+  SSH_ASKPASS_REQUIRE=never /usr/bin/ssh-add --apple-load-keychain </dev/null >/dev/null 2>&1 || true
+fi
+
 [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh

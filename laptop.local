@@ -44,6 +44,7 @@ cask "codex"
 brew "ripgrep"
 brew "overmind"
 brew "vips"
+brew "qpid-proton" # Native library required by the qpid_proton Ruby gem
 brew "awscli"
 brew "sops"
 brew "kubernetes-cli"
