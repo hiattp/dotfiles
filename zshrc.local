@@ -33,8 +33,8 @@ fi
 # https://asdf-vm.com/#/core-manage-asdf-vm
 # . /opt/homebrew/opt/asdf/libexec/asdf.sh
 # Current asdf uses shims; older installs may also have a completions directory.
-# Prefer standalone tools (Claude's native installer and pipx) to old npm shims.
-export PATH="$HOME/.local/bin:${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+# Use the same runtime ordering as noninteractive login shells.
+source "$HOME/.config/hiattp/shell-path.zsh"
 [[ -n ${ASDF_DIR:-} && -d "$ASDF_DIR/completions" ]] && fpath=("$ASDF_DIR/completions" $fpath)
 autoload -Uz compinit
 compinit

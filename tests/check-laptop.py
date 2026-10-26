@@ -45,7 +45,7 @@ def scenario(changes=None):
         (home/'.thoughtbot-dotfiles/.git').mkdir(parents=True)
         fakebin = base/'bin'
         fakebin.mkdir()
-        for name in ['brew','asdf','curl','git','go','pipx','rcup','npm','gpgconf','pinentry-mac']:
+        for name in ['brew','asdf','az','curl','git','go','pipx','rcup','npm','gpgconf','pinentry-mac']:
             stub = fakebin/name
             stub.write_text('#!'+sys.executable+'\n'+STUB)
             stub.chmod(0o755)
@@ -54,6 +54,8 @@ def scenario(changes=None):
                    DOTFILES_TEST_BREW_PREFIX=str(base),GNUPGHOME=str(home/'.gnupg'))
         env.pop('ASDF_DATA_DIR',None)
         env.update(changes or {})
+        if env.get('DOTFILES_TEST_DOTNET'):
+            (home/'.tool-versions').write_text('dotnet '+env['DOTFILES_TEST_DOTNET']+'\n')
         harness = 'fancy_echo() { printf "$1\\n" "${@:2}"; }; add_or_update_asdf_plugin() { asdf plugin add "$@"; }; source "$1"'
         result = subprocess.run(['bash','-c',harness,'test',str(ROOT/'laptop.local')],env=env,text=True,capture_output=True)
         calls = [json.loads(line) for line in (base/'commands.jsonl').read_text().splitlines()]
@@ -67,6 +69,9 @@ assert ['asdf','install','nodejs','24.11.1'] in calls
 assert ['asdf','set','--home','nodejs','24.11.1'] in calls
 assert ['asdf','install','ruby','4.0.3'] in calls
 assert ['asdf','install','terraform','1.17.0'] in calls
+assert ['asdf','plugin','add','dotnet','https://github.com/hensou/asdf-dotnet.git'] in calls
+assert ['asdf','set','--home','dotnet','system'] in calls
+assert ['az','bicep','install'] in calls
 playwright_install = ['npm','install','--global','@playwright/cli@latest']
 assert calls.index(['asdf','set','--home','nodejs','24.11.1']) < calls.index(playwright_install)
 assert calls.index(playwright_install) < calls.index(['asdf','reshim','nodejs'])
@@ -94,3 +99,8 @@ result,calls,_ = scenario({'DOTFILES_TEST_RUBY':'not-a-version'})
 assert result.returncode!=0
 assert not any(c[:2]==['asdf','install'] for c in calls)
 print('PASS: invalid release metadata is rejected before runtime installation')
+
+result,calls,_ = scenario({'DOTFILES_TEST_DOTNET':'10.0.103'})
+assert result.returncode == 0, (result.stdout,result.stderr)
+assert not any(c[:4] == ['asdf','set','--home','dotnet'] for c in calls)
+print('PASS: existing .NET home SDK selection is preserved')

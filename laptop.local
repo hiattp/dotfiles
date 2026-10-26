@@ -93,6 +93,9 @@ cask "raycast"
 cask "lens"
 EOF
 
+# Azure CLI downloads its Bicep compiler separately from the CLI package.
+az bicep install
+
 # Claude Code native installer; Codex is installed by Homebrew above.
 curl -fsSL https://claude.ai/install.sh | bash
 
@@ -101,6 +104,8 @@ curl -fsSL https://claude.ai/install.sh | bash
 add_or_update_asdf_plugin "ruby" "https://github.com/asdf-vm/asdf-ruby.git"
 add_or_update_asdf_plugin "nodejs" "https://github.com/asdf-vm/asdf-nodejs.git"
 add_or_update_asdf_plugin "terraform" "https://github.com/asdf-community/asdf-hashicorp.git"
+# Homebrew supplies the default .NET; asdf supports each project's SDK pins.
+add_or_update_asdf_plugin "dotnet" "https://github.com/hensou/asdf-dotnet.git"
 export PATH="$HOME/.local/bin:${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 
 install_asdf_default() {
@@ -118,6 +123,10 @@ install_asdf_default ruby "$(asdf latest ruby)"
 node_lts=$(curl -fsSL https://nodejs.org/dist/index.json | jq -r '[.[] | select(.lts != false)][0].version | ltrimstr("v")')
 install_asdf_default nodejs "$node_lts"
 install_asdf_default terraform "$(asdf latest terraform)"
+# Preserve an existing user-selected SDK; fresh installs fall back to Homebrew.
+if ! awk '$1 == "dotnet" { found=1 } END { exit !found }' "$HOME/.tool-versions" 2>/dev/null; then
+  asdf set --home dotnet system
+fi
 asdf reshim
 
 # Browser automation CLI for coding agents, installed for the selected Node LTS.
