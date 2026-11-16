@@ -17,6 +17,7 @@ brew bundle --file=- <<EOF
 tap "teamookla/speedtest"
 tap "fluxcd/tap"
 brew "neovim"
+brew "tree-sitter-cli" # Required by nvim-treesitter (main branch) to compile parsers
 brew "git"
 brew "gh"
 brew "gnupg"
